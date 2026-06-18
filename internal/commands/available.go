@@ -1,3 +1,4 @@
+// modexusBot internal/commands/available.go
 package commands
 
 type AvailableCommand struct {
@@ -23,7 +24,7 @@ func AvailableCommands(services EnabledServices) []AvailableCommand {
 
 	if services.Youtube {
 		commands = append(commands, AvailableCommand{
-			Name:        "youtube",
+			Name:        "youtube add",
 			Description: "Manage YouTube channels",
 			Emoji:       "🎥",
 			Service:     "youtube",

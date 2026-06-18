@@ -1,3 +1,4 @@
+// modexusBot internal/commands/commands.go
 package commands
 
 import "github.com/modexusdev/feedbot/internal/reply"

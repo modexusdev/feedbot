@@ -113,3 +113,21 @@ func generateUniqueYoutubeID(channels []YoutubeChannel) string {
 		}
 	}
 }
+func YoutubeChannelExists(handle, rssURL string) bool {
+	channels, err := loadYoutubeChannels()
+	if err != nil {
+		return false
+	}
+
+	for _, channel := range channels {
+		if rssURL != "" && channel.RSSURL == rssURL {
+			return true
+		}
+
+		if handle != "" && channel.Handle == handle {
+			return true
+		}
+	}
+
+	return false
+}

@@ -12,12 +12,12 @@ func Parse(text string) Command {
 
 	cmd := Command{}
 
-	if strings.HasPrefix(text, "@") {
+	if strings.HasPrefix(text, "#") {
 		cmd.IsCommand = true
 	}
 
 	text = strings.ToLower(text)
-	text = strings.TrimPrefix(text, "@")
+	text = strings.TrimPrefix(text, "#")
 
 	parts := strings.Fields(text)
 
@@ -41,7 +41,7 @@ func BuildHelpText(services EnabledServices) string {
 	b.WriteString("Available commands\n\n")
 
 	for _, cmd := range AvailableCommands(services) {
-		b.WriteString("• ")
+		b.WriteString("• #")
 		b.WriteString(cmd.Name)
 		b.WriteString("\n")
 	}
@@ -53,7 +53,7 @@ func BuildKeyboard(services EnabledServices) tgbotapi.ReplyKeyboardMarkup {
 	var rows [][]tgbotapi.KeyboardButton
 
 	for _, cmd := range AvailableCommands(services) {
-		button := tgbotapi.NewKeyboardButton("@" + cmd.Name)
+		button := tgbotapi.NewKeyboardButton("#" + cmd.Name)
 		rows = append(rows, tgbotapi.NewKeyboardButtonRow(button))
 	}
 
