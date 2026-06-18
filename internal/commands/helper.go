@@ -35,13 +35,13 @@ func Parse(text string) Command {
 
 	return cmd
 }
-func BuildHelpText() string {
+func BuildHelpText(services EnabledServices) string {
 	var b strings.Builder
 
 	b.WriteString("Available commands\n\n")
 
-	for _, cmd := range AvailableCommands {
-		b.WriteString("• @")
+	for _, cmd := range AvailableCommands(services) {
+		b.WriteString("• ")
 		b.WriteString(cmd.Name)
 		b.WriteString("\n")
 	}
@@ -49,10 +49,10 @@ func BuildHelpText() string {
 	return b.String()
 }
 
-func BuildKeyboard() tgbotapi.ReplyKeyboardMarkup {
+func BuildKeyboard(services EnabledServices) tgbotapi.ReplyKeyboardMarkup {
 	var rows [][]tgbotapi.KeyboardButton
 
-	for _, cmd := range AvailableCommands {
+	for _, cmd := range AvailableCommands(services) {
 		button := tgbotapi.NewKeyboardButton("@" + cmd.Name)
 		rows = append(rows, tgbotapi.NewKeyboardButtonRow(button))
 	}

@@ -1,8 +1,6 @@
 package commands
 
-import (
-	"github.com/modexusdev/feedbot/internal/reply"
-)
+import "github.com/modexusdev/feedbot/internal/reply"
 
 type Command struct {
 	Name      string
@@ -11,10 +9,8 @@ type Command struct {
 	IsCommand bool
 }
 
-func Handle(cmd Command) string {
-
+func Handle(cmd Command, services EnabledServices) string {
 	switch cmd.Name {
-
 	case "hello", "hi", "hey":
 		return "Hello Mo 👋"
 	}
@@ -24,14 +20,28 @@ func Handle(cmd Command) string {
 	}
 
 	switch cmd.Name {
-
 	case "ping":
 		return reply.Format("🏓", "Pong")
 
 	case "help":
-		return reply.Format("📚", BuildHelpText())
+		return reply.Format("📚", BuildHelpText(services))
+
+	case "youtube":
+		if !services.Youtube {
+			return reply.Format("❌", "YouTube service is disabled")
+		}
+
+		switch cmd.Action {
+		case "add":
+			return reply.Format("🎥", "Send me a YouTube channel link or handle.")
+		default:
+			return reply.Format(
+				"🎥",
+				"To add a YouTube channel:\n\nyoutube add",
+			)
+		}
 
 	default:
-		return "Unknown command"
+		return reply.Format("❌", "Unknown command")
 	}
 }

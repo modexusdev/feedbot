@@ -13,6 +13,12 @@ import (
 func main() {
 	cfg := config.Load()
 
+	services := commands.EnabledServices{
+		Youtube: true,
+		Github:  false,
+		RSS:     false,
+	}
+
 	bot, err := tgbotapi.NewBotAPI(cfg.Token)
 	if err != nil {
 		log.Fatal(err)
@@ -48,7 +54,7 @@ func main() {
 		)
 
 		cmd := commands.Parse(update.Message.Text)
-		response := commands.Handle(cmd)
+		response := commands.Handle(cmd, services)
 
 		if response == "" {
 			continue
@@ -59,7 +65,7 @@ func main() {
 
 		if cmd.Name == "help" {
 			log.Println("Keyboard attached")
-			msg.ReplyMarkup = commands.BuildKeyboard()
+			msg.ReplyMarkup = commands.BuildKeyboard(services)
 		}
 		log.Printf("Command: %s", cmd.Name)
 		if _, err := bot.Send(msg); err != nil {
