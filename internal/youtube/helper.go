@@ -2,6 +2,7 @@
 package youtube
 
 import (
+	"encoding/xml"
 	"io"
 	"net/http"
 	"net/url"
@@ -136,4 +137,24 @@ func NormalizeAvatarSize(avatarURL string) string {
 	}
 
 	return parts[0] + "=s128-c-k-c0x00ffffff-no-rj"
+}
+
+type youtubeRSSFeed struct {
+	Title string `xml:"title"`
+}
+
+func FetchChannelNameFromRSS(rssURL string) (string, error) {
+	resp, err := http.Get(rssURL)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var feed youtubeRSSFeed
+
+	if err := xml.NewDecoder(resp.Body).Decode(&feed); err != nil {
+		return "", err
+	}
+
+	return feed.Title, nil
 }

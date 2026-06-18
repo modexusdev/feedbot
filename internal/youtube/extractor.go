@@ -18,8 +18,14 @@ func ExtractYoutubeLink(link string) error {
 
 	avatarURL := ExtractAvatarURL(html)
 	avatarURL = NormalizeAvatarSize(avatarURL)
+	rssURL := ExtractRSSOrExternalID(html)
 
+	name, err := FetchChannelNameFromRSS(rssURL)
+	if err != nil {
+		return err
+	}
 	channel := storage.YoutubeChannel{
+		Name:      name,
 		Handle:    ExtractHandle(link),
 		RSSURL:    ExtractRSSOrExternalID(html),
 		AvatarURL: avatarURL,
