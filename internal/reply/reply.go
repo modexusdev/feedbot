@@ -13,7 +13,7 @@ func Format(emoji, text string) string {
 	return "<b>🚀 FeedBot:</b>\n━━━━━━━━━━━━\n\n" + emoji + " " + text
 }
 func YoutubeFormat(text string) string {
-	return "<b>🚀 FeedBot:</b>\n━━━━━━━━━━━━\n\n<b>🎥 YouTube</b>\n\n" + text
+	return "<b>🚀 FeedBot:</b>\n━━━━━━━━━━━━\n\n<b>🎥 YouTube:</b>\n\n" + text
 }
 
 func YoutubeAddFormat(channel storage.YoutubeChannel) string {
@@ -52,4 +52,10 @@ func YoutubeListFormat(channels []storage.YoutubeChannel) string {
 	}
 
 	return YoutubeFormat(text.String())
+}
+
+func AutomationFormat(sourceEmoji, sourceName, text string) string {
+	return "<b>🚀 FeedBot • Automation 🤖</b>\n━━━━━━━━━━━━\n\n<b>" +
+		sourceEmoji + " " + sourceName + ":</b>\n\n" +
+		text
 }

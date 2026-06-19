@@ -3,10 +3,13 @@ package bot
 
 import (
 	"log"
+	"strconv"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/modexusdev/feedbot/internal/commands"
 	"github.com/modexusdev/feedbot/internal/config"
+	"github.com/modexusdev/feedbot/internal/scheduler"
 	"github.com/modexusdev/feedbot/internal/storage"
 )
 
@@ -52,5 +55,28 @@ func (b *Bot) sendMessage(chatID int64, text string) {
 
 	if _, err := b.api.Send(msg); err != nil {
 		log.Printf("failed to send message: %v", err)
+	}
+}
+
+func (b *Bot) sendAutomation(text string) {
+	if len(b.config.AllowedUserIDs) == 0 {
+		log.Println("no allowed user id found for automation message")
+		return
+	}
+
+	chatID, err := strconv.ParseInt(b.config.AllowedUserIDs[0], 10, 64)
+	if err != nil {
+		log.Printf("invalid automation chat id: %v", err)
+		return
+	}
+
+	b.sendMessage(chatID, text)
+}
+
+func (b *Bot) ListenScheduler() {
+	for msg := range scheduler.Queue {
+		b.sendAutomation(msg.Text)
+
+		time.Sleep(15 * time.Second)
 	}
 }

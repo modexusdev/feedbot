@@ -6,6 +6,7 @@ import (
 	"github.com/modexusdev/feedbot/internal/bot"
 	"github.com/modexusdev/feedbot/internal/commands"
 	"github.com/modexusdev/feedbot/internal/config"
+	"github.com/modexusdev/feedbot/internal/scheduler"
 )
 
 func main() {
@@ -21,6 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	go app.ListenScheduler()
+	scheduler.Watch()
 	app.Run()
 }
