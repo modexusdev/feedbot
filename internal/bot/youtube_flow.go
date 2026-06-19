@@ -63,7 +63,7 @@ func (b *Bot) handleYoutubeAddConfirm(chatID int64) {
 		return
 	}
 
-	if err := youtube.SaveYoutubeChannelWithAvatar(channel); err != nil {
+	if _, err := storage.SaveYoutubeChannel(channel); err != nil {
 		b.sendMessage(chatID, reply.Format("❌", "Could not save YouTube channel."))
 		return
 	}
@@ -72,9 +72,17 @@ func (b *Bot) handleYoutubeAddConfirm(chatID int64) {
 
 	b.sendMessage(chatID, reply.YoutubeFormat("✅ YouTube channel added."))
 }
-
 func (b *Bot) handleYoutubeAddCancel(chatID int64) {
 	delete(b.pendingYoutubeChannel, chatID)
 
 	b.sendMessage(chatID, reply.YoutubeFormat("❌ YouTube channel was not added."))
+}
+func (b *Bot) handleYoutubeList(chatID int64) {
+	channels, err := storage.GetYoutubeChannels()
+	if err != nil {
+		b.sendMessage(chatID, reply.YoutubeFormat("❌ Could not load channels."))
+		return
+	}
+
+	b.sendMessage(chatID, reply.YoutubeListFormat(channels))
 }

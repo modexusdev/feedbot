@@ -21,8 +21,6 @@ func Handle(cmd Command, services EnabledServices) string {
 	}
 
 	switch cmd.Name {
-	case "ping":
-		return reply.Format("🏓", "Pong")
 
 	case "help":
 		return reply.Format("📚", BuildHelpText(services))
@@ -35,6 +33,9 @@ func Handle(cmd Command, services EnabledServices) string {
 		switch cmd.Action {
 		case "add":
 			return reply.Format("🎥", "Send me a YouTube channel link or handle.")
+		case "list":
+			return reply.Format("🎥", "List all YouTube channels.")
+
 		default:
 			return reply.Format(
 				"🎥",

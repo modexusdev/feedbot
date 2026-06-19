@@ -42,9 +42,7 @@ func SaveYoutubeChannel(channel YoutubeChannel) (YoutubeChannel, error) {
 			if channel.AvatarURL == "" {
 				channel.AvatarURL = existing.AvatarURL
 			}
-			if channel.AvatarPath == "" {
-				channel.AvatarPath = existing.AvatarPath
-			}
+
 			if channel.LastVideoID == "" {
 				channel.LastVideoID = existing.LastVideoID
 			}
@@ -130,4 +128,7 @@ func YoutubeChannelExists(handle, rssURL string) bool {
 	}
 
 	return false
+}
+func GetYoutubeChannels() ([]YoutubeChannel, error) {
+	return loadYoutubeChannels()
 }

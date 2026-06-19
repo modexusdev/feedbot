@@ -10,11 +10,7 @@ type AvailableCommand struct {
 
 func AvailableCommands(services EnabledServices) []AvailableCommand {
 	commands := []AvailableCommand{
-		{
-			Name:        "ping",
-			Description: "Check if bot is online",
-			Emoji:       "🏓",
-		},
+
 		{
 			Name:        "help",
 			Description: "Show available commands",
@@ -29,6 +25,13 @@ func AvailableCommands(services EnabledServices) []AvailableCommand {
 			Emoji:       "🎥",
 			Service:     "youtube",
 		})
+		commands = append(commands, AvailableCommand{
+			Name:        "youtube list",
+			Description: "List all YouTube channels",
+			Emoji:       "🎥",
+			Service:     "youtube",
+		})
+
 	}
 
 	return commands

@@ -48,6 +48,10 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 	if cmd.Name == "youtube" && cmd.Action == "add" {
 		b.waitingForYoutubeLink[chatID] = true
 	}
+	if cmd.Name == "youtube" && cmd.Action == "list" {
+		b.handleYoutubeList(chatID)
+		return
+	}
 
 	if response == "" {
 		return

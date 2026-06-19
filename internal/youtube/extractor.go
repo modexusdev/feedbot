@@ -2,9 +2,6 @@
 package youtube
 
 import (
-	"path/filepath"
-
-	"github.com/modexusdev/feedbot/internal/helper"
 	"github.com/modexusdev/feedbot/internal/storage"
 )
 
@@ -36,31 +33,12 @@ func ExtractYoutubeChannel(link string) (storage.YoutubeChannel, error) {
 	return channel, nil
 }
 
-func SaveYoutubeChannelWithAvatar(channel storage.YoutubeChannel) error {
-	channel, err := storage.SaveYoutubeChannel(channel)
-	if err != nil {
-		return err
-	}
-
-	if channel.AvatarURL == "" {
-		return nil
-	}
-
-	channel.AvatarPath = filepath.Join("data", "images", channel.ID+".jpg")
-
-	if err := helper.DownloadFile(channel.AvatarURL, channel.AvatarPath); err != nil {
-		return err
-	}
-
-	_, err = storage.SaveYoutubeChannel(channel)
-	return err
-}
-
 func ExtractYoutubeLink(link string) error {
 	channel, err := ExtractYoutubeChannel(link)
 	if err != nil {
 		return err
 	}
 
-	return SaveYoutubeChannelWithAvatar(channel)
+	_, err = storage.SaveYoutubeChannel(channel)
+	return err
 }

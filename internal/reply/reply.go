@@ -4,6 +4,7 @@ package reply
 import (
 	"fmt"
 	"html"
+	"strings"
 
 	"github.com/modexusdev/feedbot/internal/storage"
 )
@@ -32,4 +33,23 @@ func YoutubeAlreadyAddedFormat(channel storage.YoutubeChannel) string {
 			html.EscapeString(channel.Handle),
 		),
 	)
+}
+func YoutubeListFormat(channels []storage.YoutubeChannel) string {
+	if len(channels) == 0 {
+		return YoutubeFormat("No YouTube channels saved.")
+	}
+
+	var text strings.Builder
+
+	text.WriteString("<b>YouTube Channel List:</b>\n\n")
+
+	for i, channel := range channels {
+		text.WriteString(fmt.Sprintf(
+			"%d. %s\n",
+			i+1,
+			html.EscapeString(channel.Name),
+		))
+	}
+
+	return YoutubeFormat(text.String())
 }
