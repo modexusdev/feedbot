@@ -3,6 +3,7 @@ package bot
 
 import (
 	"log"
+	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/modexusdev/feedbot/internal/reply"
@@ -85,4 +86,53 @@ func (b *Bot) handleYoutubeList(chatID int64) {
 	}
 
 	b.sendMessage(chatID, reply.YoutubeListFormat(channels))
+}
+func (b *Bot) handleYoutubeRemoveStart(chatID int64) {
+	channels, err := storage.GetYoutubeChannels()
+	if err != nil {
+		b.sendMessage(chatID, reply.YoutubeFormat("❌ Could not load channels."))
+		return
+	}
+
+	if len(channels) == 0 {
+		b.sendMessage(chatID, reply.YoutubeFormat("No YouTube channels found."))
+		return
+	}
+
+	b.waitingForYoutubeRemove[chatID] = true
+
+	b.sendMessage(
+		chatID,
+		reply.YoutubeListFormat(channels)+"\n\nWrite the number you want to remove.",
+	)
+}
+
+func (b *Bot) handleYoutubeRemoveNumber(chatID int64, text string) {
+	b.waitingForYoutubeRemove[chatID] = false
+
+	index, err := strconv.Atoi(text)
+	if err != nil || index < 1 {
+		b.sendMessage(chatID, reply.YoutubeFormat("❌ Invalid number."))
+		return
+	}
+
+	channels, err := storage.GetYoutubeChannels()
+	if err != nil {
+		b.sendMessage(chatID, reply.YoutubeFormat("❌ Could not load channels."))
+		return
+	}
+
+	if index > len(channels) {
+		b.sendMessage(chatID, reply.YoutubeFormat("❌ Channel number not found."))
+		return
+	}
+
+	channel := channels[index-1]
+
+	if err := storage.DeleteYoutubeChannel(channel.ID); err != nil {
+		b.sendMessage(chatID, reply.YoutubeFormat("❌ Could not remove channel."))
+		return
+	}
+
+	b.sendMessage(chatID, reply.YoutubeFormat("✅ Removed:\n\n"+channel.Name))
 }

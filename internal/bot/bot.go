@@ -14,11 +14,12 @@ import (
 )
 
 type Bot struct {
-	api                   *tgbotapi.BotAPI
-	config                config.BotConfig
-	services              commands.EnabledServices
-	waitingForYoutubeLink map[int64]bool
-	pendingYoutubeChannel map[int64]storage.YoutubeChannel
+	api                     *tgbotapi.BotAPI
+	config                  config.BotConfig
+	services                commands.EnabledServices
+	waitingForYoutubeLink   map[int64]bool
+	pendingYoutubeChannel   map[int64]storage.YoutubeChannel
+	waitingForYoutubeRemove map[int64]bool
 }
 
 func New(cfg config.BotConfig, services commands.EnabledServices) (*Bot, error) {
@@ -28,11 +29,12 @@ func New(cfg config.BotConfig, services commands.EnabledServices) (*Bot, error) 
 	}
 
 	return &Bot{
-		api:                   api,
-		config:                cfg,
-		services:              services,
-		waitingForYoutubeLink: make(map[int64]bool),
-		pendingYoutubeChannel: make(map[int64]storage.YoutubeChannel),
+		api:                     api,
+		config:                  cfg,
+		services:                services,
+		waitingForYoutubeLink:   make(map[int64]bool),
+		pendingYoutubeChannel:   make(map[int64]storage.YoutubeChannel),
+		waitingForYoutubeRemove: make(map[int64]bool),
 	}, nil
 }
 

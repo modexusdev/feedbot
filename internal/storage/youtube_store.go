@@ -239,3 +239,17 @@ func GetYoutubeChannels() ([]YoutubeChannel, error) {
 
 	return channels, rows.Err()
 }
+func DeleteYoutubeChannel(id string) error {
+	db, err := openYoutubeDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		DELETE FROM youtube_channels
+		WHERE id = ?
+	`, id)
+
+	return err
+}

@@ -35,6 +35,8 @@ func Handle(cmd Command, services EnabledServices) string {
 			return reply.Format("🎥", "Send me a YouTube channel link or handle.")
 		case "list":
 			return reply.Format("🎥", "List all YouTube channels.")
+		case "remove":
+			return reply.Format("🎥", "Remove a YouTube channel.")
 
 		default:
 			return reply.Format(

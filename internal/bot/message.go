@@ -42,14 +42,15 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 		return
 	}
 
+	if b.waitingForYoutubeRemove[chatID] {
+		b.handleYoutubeRemoveNumber(chatID, text)
+		return
+	}
+
 	cmd := commands.Parse(text)
 	response := commands.Handle(cmd, b.services)
 
-	if cmd.Name == "youtube" && cmd.Action == "add" {
-		b.waitingForYoutubeLink[chatID] = true
-	}
-	if cmd.Name == "youtube" && cmd.Action == "list" {
-		b.handleYoutubeList(chatID)
+	if handled := b.handleCommandAction(chatID, cmd); handled {
 		return
 	}
 

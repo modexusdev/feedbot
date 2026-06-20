@@ -31,6 +31,12 @@ func AvailableCommands(services EnabledServices) []AvailableCommand {
 			Emoji:       "🎥",
 			Service:     "youtube",
 		})
+		commands = append(commands, AvailableCommand{
+			Name:        "youtube remove",
+			Description: "Remove a YouTube channel",
+			Emoji:       "🎥",
+			Service:     "youtube",
+		})
 
 	}
 
