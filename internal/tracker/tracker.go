@@ -1,16 +1,20 @@
-// modexusBot/internal/scheduler/watcher.go
-package scheduler
+package tracker
 
-import "time"
+import (
+	"time"
+
+	"github.com/modexusdev/feedbot/internal/scheduler"
+	"github.com/modexusdev/feedbot/internal/youtube"
+)
 
 func Watch() {
-
+	go scheduler.Check(30*time.Minute, youtube.CheckAllChannels)
 }
 
 func startDevYoutubeWatcher() {
 	time.Sleep(10 * time.Second)
 
-	Push(ScheduledMessage{
+	scheduler.Push(scheduler.ScheduledMessage{
 		SourceEmoji: "🎥",
 		SourceName:  "YouTube",
 		Message:     "New video uploaded by Pix",
@@ -19,7 +23,7 @@ func startDevYoutubeWatcher() {
 func startDevGithubWatcher() {
 	time.Sleep(14 * time.Second)
 
-	Push(ScheduledMessage{
+	scheduler.Push(scheduler.ScheduledMessage{
 		SourceEmoji: "🎥",
 		SourceName:  "GitHub",
 		Message:     "New repository created",
@@ -28,7 +32,7 @@ func startDevGithubWatcher() {
 func startDevNewHackerWatcher() {
 	time.Sleep(10 * time.Second)
 
-	Push(ScheduledMessage{
+	scheduler.Push(scheduler.ScheduledMessage{
 		SourceEmoji: "🎥",
 		SourceName:  "New Hacker",
 		Message:     "new hacker joined",

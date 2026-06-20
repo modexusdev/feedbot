@@ -2,6 +2,8 @@
 package scheduler
 
 import (
+	"time"
+
 	"github.com/modexusdev/feedbot/internal/reply"
 )
 
@@ -26,5 +28,15 @@ func Push(msg ScheduledMessage) {
 
 	Queue <- AutomationMessage{
 		Text: text,
+	}
+}
+func Check(interval time.Duration, checkFunc func()) {
+	time.Sleep(4 * time.Second)
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		checkFunc()
+		<-ticker.C
 	}
 }
