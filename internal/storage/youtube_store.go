@@ -2,133 +2,240 @@
 package storage
 
 import (
-	"encoding/json"
+	"database/sql"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/modexusdev/feedbot/internal/helper"
+
+	_ "modernc.org/sqlite"
 )
 
-const youtubeDB = "data/youtube/channels.json"
+const youtubeDB = "data/feedbot.db"
 
-func SaveYoutubeChannel(channel YoutubeChannel) (YoutubeChannel, error) {
+func openYoutubeDB() (*sql.DB, error) {
 	if err := os.MkdirAll(filepath.Dir(youtubeDB), 0755); err != nil {
-		return channel, err
+		return nil, err
 	}
 
-	channels, err := loadYoutubeChannels()
+	db, err := sql.Open("sqlite", youtubeDB)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := createYoutubeTable(db); err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
+}
+
+func createYoutubeTable(db *sql.DB) error {
+	_, err := db.Exec(`
+		CREATE TABLE IF NOT EXISTS youtube_channels (
+			id TEXT PRIMARY KEY,
+			name TEXT,
+			handle TEXT UNIQUE,
+			rss_url TEXT UNIQUE,
+			avatar_url TEXT,
+			last_video_id TEXT,
+			created_at TEXT,
+			updated_at TEXT
+		);
+	`)
+	return err
+}
+
+func SaveYoutubeChannel(channel YoutubeChannel) (YoutubeChannel, error) {
+	db, err := openYoutubeDB()
+	if err != nil {
+		return channel, err
+	}
+	defer db.Close()
+
+	now := time.Now().Format(time.RFC3339)
+
+	existing, found, err := findYoutubeChannel(db, channel.Handle, channel.RSSURL)
 	if err != nil {
 		return channel, err
 	}
 
-	now := time.Now().Format(time.RFC3339)
+	if found {
+		channel.ID = existing.ID
+		channel.CreatedAt = existing.CreatedAt
+		channel.UpdatedAt = now
 
-	for i, existing := range channels {
-		if existing.RSSURL == channel.RSSURL || existing.Handle == channel.Handle {
-			channel.ID = existing.ID
-			channel.CreatedAt = existing.CreatedAt
-			channel.UpdatedAt = now
-
-			if channel.Name == "" {
-				channel.Name = existing.Name
-			}
-			if channel.Handle == "" {
-				channel.Handle = existing.Handle
-			}
-			if channel.RSSURL == "" {
-				channel.RSSURL = existing.RSSURL
-			}
-			if channel.AvatarURL == "" {
-				channel.AvatarURL = existing.AvatarURL
-			}
-
-			if channel.LastVideoID == "" {
-				channel.LastVideoID = existing.LastVideoID
-			}
-
-			channels[i] = channel
-			return channel, saveYoutubeChannels(channels)
+		if channel.Name == "" {
+			channel.Name = existing.Name
 		}
+		if channel.Handle == "" {
+			channel.Handle = existing.Handle
+		}
+		if channel.RSSURL == "" {
+			channel.RSSURL = existing.RSSURL
+		}
+		if channel.AvatarURL == "" {
+			channel.AvatarURL = existing.AvatarURL
+		}
+		if channel.LastVideoID == "" {
+			channel.LastVideoID = existing.LastVideoID
+		}
+
+		_, err := db.Exec(`
+			UPDATE youtube_channels
+			SET name = ?,
+				handle = ?,
+				rss_url = ?,
+				avatar_url = ?,
+				last_video_id = ?,
+				updated_at = ?
+			WHERE id = ?
+		`,
+			channel.Name,
+			channel.Handle,
+			channel.RSSURL,
+			channel.AvatarURL,
+			channel.LastVideoID,
+			channel.UpdatedAt,
+			channel.ID,
+		)
+
+		return channel, err
 	}
 
 	if channel.ID == "" {
-		channel.ID = generateUniqueYoutubeID(channels)
+		channel.ID = helper.GenerateID("yo")
 	}
 
 	channel.CreatedAt = now
 	channel.UpdatedAt = now
 
-	channels = append(channels, channel)
+	_, err = db.Exec(`
+		INSERT INTO youtube_channels (
+			id,
+			name,
+			handle,
+			rss_url,
+			avatar_url,
+			last_video_id,
+			created_at,
+			updated_at
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	`,
+		channel.ID,
+		channel.Name,
+		channel.Handle,
+		channel.RSSURL,
+		channel.AvatarURL,
+		channel.LastVideoID,
+		channel.CreatedAt,
+		channel.UpdatedAt,
+	)
 
-	return channel, saveYoutubeChannels(channels)
+	return channel, err
 }
-func loadYoutubeChannels() ([]YoutubeChannel, error) {
-	var channels []YoutubeChannel
 
-	data, err := os.ReadFile(youtubeDB)
+func findYoutubeChannel(db *sql.DB, handle, rssURL string) (YoutubeChannel, bool, error) {
+	var channel YoutubeChannel
+
+	row := db.QueryRow(`
+		SELECT id,
+			   name,
+			   handle,
+			   rss_url,
+			   avatar_url,
+			   last_video_id,
+			   created_at,
+			   updated_at
+		FROM youtube_channels
+		WHERE handle = ? OR rss_url = ?
+		LIMIT 1
+	`, handle, rssURL)
+
+	err := row.Scan(
+		&channel.ID,
+		&channel.Name,
+		&channel.Handle,
+		&channel.RSSURL,
+		&channel.AvatarURL,
+		&channel.LastVideoID,
+		&channel.CreatedAt,
+		&channel.UpdatedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return channel, false, nil
+	}
+
 	if err != nil {
-		if os.IsNotExist(err) {
-			return channels, nil
-		}
-		return nil, err
+		return channel, false, err
 	}
 
-	if len(data) == 0 {
-		return channels, nil
-	}
-
-	if err := json.Unmarshal(data, &channels); err != nil {
-		return nil, err
-	}
-
-	return channels, nil
+	return channel, true, nil
 }
 
-func saveYoutubeChannels(channels []YoutubeChannel) error {
-	jsonData, err := json.MarshalIndent(channels, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(youtubeDB, jsonData, 0644)
-}
-
-func generateUniqueYoutubeID(channels []YoutubeChannel) string {
-	for {
-		id := helper.GenerateID("yo")
-
-		exists := false
-		for _, channel := range channels {
-			if channel.ID == id {
-				exists = true
-				break
-			}
-		}
-
-		if !exists {
-			return id
-		}
-	}
-}
 func YoutubeChannelExists(handle, rssURL string) bool {
-	channels, err := loadYoutubeChannels()
+	db, err := openYoutubeDB()
+	if err != nil {
+		return false
+	}
+	defer db.Close()
+
+	_, found, err := findYoutubeChannel(db, handle, rssURL)
 	if err != nil {
 		return false
 	}
 
-	for _, channel := range channels {
-		if rssURL != "" && channel.RSSURL == rssURL {
-			return true
+	return found
+}
+
+func GetYoutubeChannels() ([]YoutubeChannel, error) {
+	db, err := openYoutubeDB()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	rows, err := db.Query(`
+		SELECT id,
+			   name,
+			   handle,
+			   rss_url,
+			   avatar_url,
+			   last_video_id,
+			   created_at,
+			   updated_at
+		FROM youtube_channels
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var channels []YoutubeChannel
+
+	for rows.Next() {
+		var channel YoutubeChannel
+
+		err := rows.Scan(
+			&channel.ID,
+			&channel.Name,
+			&channel.Handle,
+			&channel.RSSURL,
+			&channel.AvatarURL,
+			&channel.LastVideoID,
+			&channel.CreatedAt,
+			&channel.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
 		}
 
-		if handle != "" && channel.Handle == handle {
-			return true
-		}
+		channels = append(channels, channel)
 	}
 
-	return false
-}
-func GetYoutubeChannels() ([]YoutubeChannel, error) {
-	return loadYoutubeChannels()
+	return channels, rows.Err()
 }

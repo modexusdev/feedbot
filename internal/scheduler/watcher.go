@@ -4,9 +4,7 @@ package scheduler
 import "time"
 
 func Watch() {
-	go startDevYoutubeWatcher()
-	go startDevGithubWatcher()
-	go startDevNewHackerWatcher()
+
 }
 
 func startDevYoutubeWatcher() {
