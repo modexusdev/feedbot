@@ -9,5 +9,12 @@ import (
 
 // Watch starts all enabled background content trackers.
 func Watch() {
-	go scheduler.Check(30*time.Minute, youtube.CheckAllChannels)
+	go scheduler.Check(
+		scheduler.Schedule{
+			Interval:  30 * time.Minute,
+			QuietFrom: 23,
+			QuietTo:   5,
+		},
+		youtube.CheckAllChannels,
+	)
 }

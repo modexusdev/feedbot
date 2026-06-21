@@ -19,6 +19,13 @@ type AutomationMessage struct {
 	Text string
 }
 
+// Schedule contains the schedule for an automation notification.
+type Schedule struct {
+	Interval  time.Duration
+	QuietFrom int
+	QuietTo   int
+}
+
 // Queue stores automation messages before they are sent by the bot.
 var Queue = make(chan AutomationMessage, 100)
 
@@ -36,13 +43,33 @@ func Push(msg ScheduledMessage) {
 
 // Check runs a function immediately after a short startup delay
 // and then repeatedly at the given interval.
-func Check(interval time.Duration, checkFunc func()) {
+func Check(schedule Schedule, checkFunc func()) {
 	time.Sleep(4 * time.Second)
-	ticker := time.NewTicker(interval)
+
+	ticker := time.NewTicker(schedule.Interval)
 	defer ticker.Stop()
 
 	for {
-		checkFunc()
+		if !schedule.IsQuietTime() {
+			checkFunc()
+		}
+
 		<-ticker.C
 	}
+}
+
+// IsQuietTime reports whether the current local time
+// falls within the configured quiet period.
+func (s Schedule) IsQuietTime() bool {
+	if s.QuietFrom < 0 || s.QuietTo < 0 {
+		return false
+	}
+
+	hour := time.Now().Hour()
+
+	if s.QuietFrom > s.QuietTo {
+		return hour >= s.QuietFrom || hour < s.QuietTo
+	}
+
+	return hour >= s.QuietFrom && hour < s.QuietTo
 }

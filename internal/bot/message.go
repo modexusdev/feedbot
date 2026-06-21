@@ -37,8 +37,6 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 	chatID := update.Message.Chat.ID
 	text := update.Message.Text
 
-	log.Printf("User: %s | Message: %s", update.Message.From.UserName, text)
-
 	if b.waitingForYoutubeLink[chatID] {
 		b.handleYoutubeLink(chatID, text)
 		return
@@ -50,6 +48,8 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 	}
 
 	cmd := commands.Parse(text)
+	log.Printf("Command executed: %s", cmd.Name)
+
 	response := commands.Handle(cmd, b.services)
 
 	if handled := b.handleCommandAction(chatID, cmd); handled {
@@ -64,11 +64,8 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 	msg.ParseMode = tgbotapi.ModeHTML
 
 	if cmd.Name == "help" {
-		log.Println("Keyboard attached")
 		msg.ReplyMarkup = commands.BuildKeyboard(b.services)
 	}
-
-	log.Printf("Command: %s", cmd.Name)
 
 	if _, err := b.api.Send(msg); err != nil {
 		log.Printf("failed to send message: %v", err)
