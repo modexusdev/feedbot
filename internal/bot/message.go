@@ -35,7 +35,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 	}
 
 	chatID := update.Message.Chat.ID
-	text := update.Message.Text
+	text := commands.NormalizeKeyboardText(update.Message.Text)
 
 	if b.waitingForYoutubeLink[chatID] {
 		b.handleYoutubeLink(chatID, text)
@@ -64,7 +64,11 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 	msg.ParseMode = tgbotapi.ModeHTML
 
 	if cmd.Name == "help" {
-		msg.ReplyMarkup = commands.BuildKeyboard(b.services)
+		msg.ReplyMarkup = commands.BuildMainKeyboard(b.services)
+	}
+
+	if cmd.Name == "youtube" && cmd.Action == "" {
+		msg.ReplyMarkup = commands.BuildYoutubeKeyboard()
 	}
 
 	if _, err := b.api.Send(msg); err != nil {

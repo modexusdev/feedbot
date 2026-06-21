@@ -22,6 +22,12 @@ func AvailableCommands(services EnabledServices) []AvailableCommand {
 
 	if services.Youtube {
 		commands = append(commands, AvailableCommand{
+			Name:        "youtube check",
+			Description: "Check for new YouTube videos",
+			Emoji:       "🎥",
+			Service:     "youtube",
+		})
+		commands = append(commands, AvailableCommand{
 			Name:        "youtube add",
 			Description: "Manage YouTube channels",
 			Emoji:       "🎥",

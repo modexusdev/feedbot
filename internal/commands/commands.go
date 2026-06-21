@@ -33,6 +33,8 @@ func Handle(cmd Command, services EnabledServices) string {
 		}
 
 		switch cmd.Action {
+		case "check":
+			return reply.Format("🎥", "YouTube check started.")
 		case "add":
 			return reply.Format("🎥", "Send me a YouTube channel link or handle.")
 		case "list":
@@ -41,10 +43,7 @@ func Handle(cmd Command, services EnabledServices) string {
 			return reply.Format("🎥", "Remove a YouTube channel.")
 
 		default:
-			return reply.Format(
-				"🎥",
-				"To add a YouTube channel:\n\nyoutube add",
-			)
+			return reply.Format("🎥", "Choose a YouTube action.")
 		}
 
 	default:
