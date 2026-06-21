@@ -48,6 +48,7 @@ func createYoutubeTable(db *sql.DB) error {
 	return err
 }
 
+// SaveYoutubeChannel inserts or updates a YouTube channel in the database.
 func SaveYoutubeChannel(channel YoutubeChannel) (YoutubeChannel, error) {
 	db, err := openYoutubeDB()
 	if err != nil {
@@ -176,6 +177,7 @@ func findYoutubeChannel(db *sql.DB, handle, rssURL string) (YoutubeChannel, bool
 	return channel, true, nil
 }
 
+// YoutubeChannelExists checks whether a YouTube channel already exists.
 func YoutubeChannelExists(handle, rssURL string) bool {
 	db, err := openYoutubeDB()
 	if err != nil {
@@ -191,6 +193,7 @@ func YoutubeChannelExists(handle, rssURL string) bool {
 	return found
 }
 
+// GetYoutubeChannels returns all saved YouTube channels.
 func GetYoutubeChannels() ([]YoutubeChannel, error) {
 	db, err := openYoutubeDB()
 	if err != nil {
@@ -239,6 +242,8 @@ func GetYoutubeChannels() ([]YoutubeChannel, error) {
 
 	return channels, rows.Err()
 }
+
+// DeleteYoutubeChannel removes a YouTube channel by ID.
 func DeleteYoutubeChannel(id string) error {
 	db, err := openYoutubeDB()
 	if err != nil {

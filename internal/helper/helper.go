@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// GenerateID creates a random identifier with the provided prefix.
 func GenerateID(prefix string) string {
 	rand.Seed(time.Now().UnixNano())
 

@@ -11,6 +11,8 @@ import (
 	"github.com/modexusdev/feedbot/internal/youtube"
 )
 
+// handleYoutubeLink extracts channel data from a submitted YouTube link
+// and asks the user to confirm before saving it.
 func (b *Bot) handleYoutubeLink(chatID int64, text string) {
 	b.waitingForYoutubeLink[chatID] = false
 
@@ -38,7 +40,7 @@ func (b *Bot) handleYoutubeLink(chatID int64, text string) {
 	if channel.AvatarURL != "" {
 		photo := tgbotapi.NewPhoto(chatID, tgbotapi.FileURL(channel.AvatarURL))
 		photo.Caption = reply.YoutubeAddFormat(channel)
-		photo.ParseMode = "HTML"
+		photo.ParseMode = tgbotapi.ModeHTML
 		photo.ReplyMarkup = markup
 
 		if _, err := b.api.Send(photo); err != nil {
@@ -49,7 +51,7 @@ func (b *Bot) handleYoutubeLink(chatID int64, text string) {
 	}
 
 	msg := tgbotapi.NewMessage(chatID, reply.YoutubeAddFormat(channel))
-	msg.ParseMode = "HTML"
+	msg.ParseMode = tgbotapi.ModeHTML
 	msg.ReplyMarkup = markup
 
 	if _, err := b.api.Send(msg); err != nil {
@@ -57,6 +59,7 @@ func (b *Bot) handleYoutubeLink(chatID int64, text string) {
 	}
 }
 
+// handleYoutubeAddConfirm saves the pending YouTube channel after user confirmation.
 func (b *Bot) handleYoutubeAddConfirm(chatID int64) {
 	channel, ok := b.pendingYoutubeChannel[chatID]
 	if !ok {
@@ -73,11 +76,15 @@ func (b *Bot) handleYoutubeAddConfirm(chatID int64) {
 
 	b.sendMessage(chatID, reply.YoutubeFormat("✅ YouTube channel added."))
 }
+
+// handleYoutubeAddCancel cancels the pending YouTube channel addition.
 func (b *Bot) handleYoutubeAddCancel(chatID int64) {
 	delete(b.pendingYoutubeChannel, chatID)
 
 	b.sendMessage(chatID, reply.YoutubeFormat("❌ YouTube channel was not added."))
 }
+
+// handleYoutubeList sends all saved YouTube channels to the user.
 func (b *Bot) handleYoutubeList(chatID int64) {
 	channels, err := storage.GetYoutubeChannels()
 	if err != nil {
@@ -87,6 +94,8 @@ func (b *Bot) handleYoutubeList(chatID int64) {
 
 	b.sendMessage(chatID, reply.YoutubeListFormat(channels))
 }
+
+// handleYoutubeRemoveStart initiates the process of removing a YouTube channel.
 func (b *Bot) handleYoutubeRemoveStart(chatID int64) {
 	channels, err := storage.GetYoutubeChannels()
 	if err != nil {
@@ -107,6 +116,7 @@ func (b *Bot) handleYoutubeRemoveStart(chatID int64) {
 	)
 }
 
+// handleYoutubeRemoveNumber removes the selected YouTube channel based on user input.
 func (b *Bot) handleYoutubeRemoveNumber(chatID int64, text string) {
 	b.waitingForYoutubeRemove[chatID] = false
 

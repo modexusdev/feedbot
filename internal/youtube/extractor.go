@@ -5,6 +5,7 @@ import (
 	"github.com/modexusdev/feedbot/internal/storage"
 )
 
+// ExtractYoutubeChannel extracts channel metadata from a YouTube link or handle.
 func ExtractYoutubeChannel(link string) (storage.YoutubeChannel, error) {
 	link = NormalizeYoutubeLink(link)
 
@@ -33,6 +34,7 @@ func ExtractYoutubeChannel(link string) (storage.YoutubeChannel, error) {
 	return channel, nil
 }
 
+// ExtractYoutubeLink extracts and saves a YouTube channel from a link or handle.
 func ExtractYoutubeLink(link string) error {
 	channel, err := ExtractYoutubeChannel(link)
 	if err != nil {

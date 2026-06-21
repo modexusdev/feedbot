@@ -2,10 +2,10 @@
 package bot
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/modexusdev/feedbot/internal/commands"
 )
 
+// handleCommandAction routes commands to the appropriate service handler.
 func (b *Bot) handleCommandAction(chatID int64, cmd commands.Command) bool {
 	switch cmd.Name {
 	case "youtube":
@@ -16,6 +16,7 @@ func (b *Bot) handleCommandAction(chatID int64, cmd commands.Command) bool {
 	}
 }
 
+// handleYoutubeCommand processes all YouTube-related command actions.
 func (b *Bot) handleYoutubeCommand(chatID int64, cmd commands.Command) bool {
 	switch cmd.Action {
 	case "add":
@@ -32,11 +33,4 @@ func (b *Bot) handleYoutubeCommand(chatID int64, cmd commands.Command) bool {
 	}
 
 	return false
-}
-
-func (b *Bot) sendText(chatID int64, text string) {
-	msg := tgbotapi.NewMessage(chatID, text)
-	msg.ParseMode = "HTML"
-
-	b.api.Send(msg)
 }

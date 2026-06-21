@@ -9,6 +9,7 @@ import (
 	"github.com/modexusdev/feedbot/internal/config"
 )
 
+// handleCallback processes Telegram inline keyboard callbacks.
 func (b *Bot) handleCallback(callback *tgbotapi.CallbackQuery) {
 	userID := fmt.Sprintf("%d", callback.From.ID)
 

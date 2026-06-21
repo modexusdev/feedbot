@@ -9,13 +9,17 @@ import (
 	"github.com/modexusdev/feedbot/internal/storage"
 )
 
+// Format creates a standard FeedBot message.
 func Format(emoji, text string) string {
 	return "<b>🚀 FeedBot:</b>\n━━━━━━━━━━━━\n\n" + emoji + " " + text
 }
+
+// YoutubeFormat creates a formatted YouTube message.
 func YoutubeFormat(text string) string {
 	return "<b>🚀 FeedBot:</b>\n━━━━━━━━━━━━\n\n<b>🎥 YouTube:</b>\n\n" + text
 }
 
+// YoutubeAddFormat creates a confirmation message for adding a channel.
 func YoutubeAddFormat(channel storage.YoutubeChannel) string {
 	return YoutubeFormat(
 		fmt.Sprintf(
@@ -25,6 +29,8 @@ func YoutubeAddFormat(channel storage.YoutubeChannel) string {
 		),
 	)
 }
+
+// YoutubeAlreadyAddedFormat creates a message for channels that already exist.
 func YoutubeAlreadyAddedFormat(channel storage.YoutubeChannel) string {
 	return YoutubeFormat(
 		fmt.Sprintf(
@@ -34,6 +40,8 @@ func YoutubeAlreadyAddedFormat(channel storage.YoutubeChannel) string {
 		),
 	)
 }
+
+// YoutubeListFormat creates a formatted list of saved channels.
 func YoutubeListFormat(channels []storage.YoutubeChannel) string {
 	if len(channels) == 0 {
 		return YoutubeFormat("No YouTube channels saved.")
@@ -54,6 +62,7 @@ func YoutubeListFormat(channels []storage.YoutubeChannel) string {
 	return YoutubeFormat(text.String())
 }
 
+// AutomationFormat creates a formatted automation notification message.
 func AutomationFormat(sourceEmoji, sourceName, text string) string {
 	return "<b>🚀 FeedBot • Automation 🤖</b>\n━━━━━━━━━━━━\n\n<b>" +
 		sourceEmoji + " " + sourceName + ":</b>\n\n" +

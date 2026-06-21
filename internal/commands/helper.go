@@ -7,6 +7,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+// Parse converts a text message into a structured command.
 func Parse(text string) Command {
 	text = strings.TrimSpace(text)
 
@@ -35,6 +36,8 @@ func Parse(text string) Command {
 
 	return cmd
 }
+
+// BuildHelpText generates the help text for all enabled commands.
 func BuildHelpText(services EnabledServices) string {
 	var b strings.Builder
 
@@ -49,6 +52,7 @@ func BuildHelpText(services EnabledServices) string {
 	return b.String()
 }
 
+// BuildKeyboard creates the Telegram keyboard for all enabled commands.
 func BuildKeyboard(services EnabledServices) tgbotapi.ReplyKeyboardMarkup {
 	var rows [][]tgbotapi.KeyboardButton
 

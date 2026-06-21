@@ -1,2 +1,10 @@
 .env
 data/
+docker-compose.prod.yml
+deploy.sh
+docker-compose.yml
+feedbot-image.tar
+Dockerfile
+*.db
+*.db-shm
+*.db-wal

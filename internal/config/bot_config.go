@@ -1,3 +1,4 @@
+// modexusBot internal/config/bot_config.go
 package config
 
 import (
@@ -8,11 +9,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// BotConfig contains the application configuration loaded from environment variables.
 type BotConfig struct {
 	Token          string
 	AllowedUserIDs []string
 }
 
+// Load reads and validates the application configuration from the environment.
 func Load() BotConfig {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("failed to load .env")
@@ -34,6 +37,7 @@ func Load() BotConfig {
 	}
 }
 
+// IsAllowedUser checks whether a user ID is present in the allowed user list.
 func IsAllowedUser(userID string, allowedIDs []string) bool {
 	for _, id := range allowedIDs {
 		if userID == id {

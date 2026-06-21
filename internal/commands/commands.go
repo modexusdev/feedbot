@@ -3,6 +3,7 @@ package commands
 
 import "github.com/modexusdev/feedbot/internal/reply"
 
+// Command represents a parsed user command.
 type Command struct {
 	Name      string
 	Action    string
@@ -10,10 +11,11 @@ type Command struct {
 	IsCommand bool
 }
 
+// Handle returns the response text for a parsed command.
 func Handle(cmd Command, services EnabledServices) string {
 	switch cmd.Name {
 	case "hello", "hi", "hey":
-		return "Hello Mo 👋"
+		return "Hello 👋"
 	}
 
 	if !cmd.IsCommand {

@@ -3,12 +3,14 @@ package youtube
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
+// NormalizeYoutubeLink normalizes a YouTube handle link to a canonical channel URL.
 func NormalizeYoutubeLink(link string) string {
 	link = strings.TrimSpace(link)
 
@@ -36,6 +38,7 @@ func NormalizeYoutubeLink(link string) string {
 	return ""
 }
 
+// ExtractRSSOrExternalID extracts the RSS feed URL or channel ID from YouTube page HTML.
 func ExtractRSSOrExternalID(html string) string {
 	rssURL := extractBetween(html, `"rssUrl":"`, `"`)
 
@@ -67,12 +70,18 @@ func extractBetween(text string, startText string, endText string) string {
 
 	return text[start : start+end]
 }
+
+// FetchHTML downloads and returns the HTML content of a page.
 func FetchHTML(link string) (string, error) {
 	resp, err := http.Get(link)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -81,6 +90,8 @@ func FetchHTML(link string) (string, error) {
 
 	return string(body), nil
 }
+
+// ExtractHandle extracts the YouTube handle from a channel URL.
 func ExtractHandle(link string) string {
 	link = NormalizeYoutubeLink(link)
 
@@ -103,6 +114,8 @@ func ExtractHandle(link string) string {
 
 	return ""
 }
+
+// ExtractAvatarURL extracts the channel avatar URL from YouTube page HTML.
 func ExtractAvatarURL(html string) string {
 	metadata := extractBetween(html, `"channelMetadataRenderer":{`, `,"metadataRowContainer"`)
 
@@ -126,6 +139,8 @@ func ExtractAvatarURL(html string) string {
 
 	return avatarURL
 }
+
+// NormalizeAvatarSize normalizes a YouTube avatar URL to a fixed thumbnail size.
 func NormalizeAvatarSize(avatarURL string) string {
 	if avatarURL == "" {
 		return ""
@@ -143,12 +158,17 @@ type youtubeRSSFeed struct {
 	Title string `xml:"title"`
 }
 
+// FetchChannelNameFromRSS fetches the channel name from a YouTube RSS feed.
 func FetchChannelNameFromRSS(rssURL string) (string, error) {
 	resp, err := http.Get(rssURL)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
 
 	var feed youtubeRSSFeed
 

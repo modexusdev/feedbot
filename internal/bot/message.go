@@ -11,6 +11,8 @@ import (
 	"github.com/modexusdev/feedbot/internal/config"
 )
 
+// handleUpdate processes incoming Telegram updates and routes them
+// to the appropriate command, callback, or workflow handler.
 func (b *Bot) handleUpdate(update tgbotapi.Update) {
 	if update.CallbackQuery != nil {
 		b.handleCallback(update.CallbackQuery)
@@ -59,7 +61,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 	}
 
 	msg := tgbotapi.NewMessage(chatID, response)
-	msg.ParseMode = "HTML"
+	msg.ParseMode = tgbotapi.ModeHTML
 
 	if cmd.Name == "help" {
 		log.Println("Keyboard attached")

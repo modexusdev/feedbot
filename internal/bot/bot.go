@@ -22,6 +22,7 @@ type Bot struct {
 	waitingForYoutubeRemove map[int64]bool
 }
 
+// New creates a new Telegram bot instance with the provided configuration.
 func New(cfg config.BotConfig, services commands.EnabledServices) (*Bot, error) {
 	api, err := tgbotapi.NewBotAPI(cfg.Token)
 	if err != nil {
@@ -53,7 +54,7 @@ func (b *Bot) Run() {
 
 func (b *Bot) sendMessage(chatID int64, text string) {
 	msg := tgbotapi.NewMessage(chatID, text)
-	msg.ParseMode = "HTML"
+	msg.ParseMode = tgbotapi.ModeHTML
 
 	if _, err := b.api.Send(msg); err != nil {
 		log.Printf("failed to send message: %v", err)
@@ -78,7 +79,7 @@ func (b *Bot) sendAutomation(text string) {
 func (b *Bot) ListenScheduler() {
 	for msg := range scheduler.Queue {
 		b.sendAutomation(msg.Text)
-
-		time.Sleep(15 * time.Second)
+		// Prevent Telegram message bursts when multiple events arrive at once.
+		time.Sleep(5 * time.Second)
 	}
 }

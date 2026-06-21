@@ -12,10 +12,12 @@ import (
 	"github.com/modexusdev/feedbot/internal/storage"
 )
 
+// Feed represents the YouTube RSS feed structure.
 type Feed struct {
 	Entries []Entry `xml:"entry"`
 }
 
+// Entry represents a single video entry in a YouTube RSS feed.
 type Entry struct {
 	Title     string `xml:"title"`
 	Link      Link   `xml:"link"`
@@ -23,10 +25,12 @@ type Entry struct {
 	Published string `xml:"published"`
 }
 
+// Link represents the video link inside a YouTube RSS entry.
 type Link struct {
 	Href string `xml:"href,attr"`
 }
 
+// LatestVideo contains normalized video data used by FeedBot.
 type LatestVideo struct {
 	Title     string
 	Link      string
@@ -34,6 +38,7 @@ type LatestVideo struct {
 	Published string
 }
 
+// GetFeedVideos fetches and parses videos from a YouTube RSS feed.
 func GetFeedVideos(rssURL string) ([]LatestVideo, error) {
 	resp, err := http.Get(rssURL)
 	if err != nil {
@@ -66,6 +71,7 @@ func GetFeedVideos(rssURL string) ([]LatestVideo, error) {
 	return videos, nil
 }
 
+// CheckAllChannels checks all saved YouTube channels for new videos.
 func CheckAllChannels() {
 	channels, err := storage.GetYoutubeChannels()
 	if err != nil {

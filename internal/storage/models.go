@@ -1,6 +1,7 @@
 // modexusBot/internal/storage/models.go
 package storage
 
+// YoutubeChannel represents a tracked YouTube channel.
 type YoutubeChannel struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`

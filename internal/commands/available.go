@@ -8,6 +8,8 @@ type AvailableCommand struct {
 	Service     string
 }
 
+// AvailableCommands returns all commands that are enabled
+// for the configured services.
 func AvailableCommands(services EnabledServices) []AvailableCommand {
 	commands := []AvailableCommand{
 
