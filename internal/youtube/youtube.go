@@ -97,9 +97,11 @@ func CheckAllChannels() {
 		latestVideo := videos[0]
 
 		if channel.LastVideoID == "" {
-			pushYoutubeVideo(channel, latestVideo)
-			saveLatestVideoID(channel, latestVideo.VideoID)
+			if !IsShort(latestVideo) {
+				pushYoutubeVideo(channel, latestVideo)
+			}
 
+			saveLatestVideoID(channel, latestVideo.VideoID)
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -114,6 +116,10 @@ func CheckAllChannels() {
 		for _, video := range videos {
 			if video.VideoID == channel.LastVideoID {
 				break
+			}
+
+			if IsShort(video) {
+				continue
 			}
 
 			newVideos = append(newVideos, video)

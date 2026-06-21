@@ -178,3 +178,6 @@ func FetchChannelNameFromRSS(rssURL string) (string, error) {
 
 	return feed.Title, nil
 }
+func IsShort(video LatestVideo) bool {
+	return strings.Contains(video.Link, "/shorts/")
+}
