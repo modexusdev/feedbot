@@ -16,7 +16,8 @@ func Format(emoji, text string) string {
 
 // YoutubeFormat creates a formatted YouTube message.
 func YoutubeFormat(text string) string {
-	return "<b>🚀 FeedBot:</b>\n━━━━━━━━━━━━\n\n<b>🎥 YouTube:</b>\n\n" + text
+	return Format("🎥", "<b>YouTube:</b>\n\n"+text)
+
 }
 
 // YoutubeAddFormat creates a confirmation message for adding a channel.
@@ -62,9 +63,11 @@ func YoutubeListFormat(channels []storage.YoutubeChannel) string {
 	return YoutubeFormat(text.String())
 }
 
+func WeatherFormat(text string) string {
+	return Format("🌦️", "<b>Weather:</b>\n\n"+text)
+}
+
 // AutomationFormat creates a formatted automation notification message.
 func AutomationFormat(sourceEmoji, sourceName, text string) string {
-	return "<b>🚀 FeedBot • Automation 🤖</b>\n━━━━━━━━━━━━\n\n<b>" +
-		sourceEmoji + " " + sourceName + ":</b>\n\n" +
-		text
+	return Format("🚀", "<b>Automation:</b>\n\n"+text)
 }

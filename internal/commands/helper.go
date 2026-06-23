@@ -8,13 +8,18 @@ import (
 )
 
 const (
-	ButtonYoutube       = "🎥 YouTube"
-	ButtonHelp          = "📚 Help"
+	ButtonYoutube = "🎥 YouTube"
+	ButtonWeather = "🌤 Weather"
+	ButtonHelp    = "📚 Help"
+
 	ButtonYoutubeAdd    = "➕ Add"
 	ButtonYoutubeList   = "📋 List"
 	ButtonYoutubeRemove = "➖ Remove"
 	ButtonYoutubeCheck  = "🔄 Check"
-	ButtonBack          = "🔙 Back"
+
+	ButtonWeatherToday = "🌤 Today"
+
+	ButtonBack = "🔙 Back"
 )
 
 // NormalizeKeyboardText converts keyboard button text into real commands.
@@ -34,6 +39,11 @@ func NormalizeKeyboardText(text string) string {
 		return "#youtube remove"
 	case ButtonYoutubeCheck:
 		return "#youtube check"
+	case ButtonWeather:
+		return "#weather"
+	case ButtonWeatherToday:
+		return "#weather today"
+
 	case ButtonBack:
 		return "#help"
 	default:
@@ -80,6 +90,9 @@ func BuildHelpText(services EnabledServices) string {
 	if services.Youtube {
 		b.WriteString("🎥 YouTube\n")
 	}
+	if services.Weather {
+		b.WriteString("🌤 Weather\n")
+	}
 
 	b.WriteString("📚 Help\n")
 
@@ -97,6 +110,11 @@ func BuildMainKeyboard(services EnabledServices) tgbotapi.ReplyKeyboardMarkup {
 	if services.Youtube {
 		rows = append(rows, tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton(ButtonYoutube),
+		))
+	}
+	if services.Weather {
+		rows = append(rows, tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton(ButtonWeather),
 		))
 	}
 
@@ -151,18 +169,8 @@ func BuildYoutubeKeyboard() tgbotapi.ReplyKeyboardMarkup {
 	)
 }
 
-// Example for later:
-// const (
-// 	ButtonWeather         = "🌦 Weather"
-// 	ButtonWeatherToday    = "📍 Today"
-// 	ButtonWeatherTomorrow = "📅 Tomorrow"
-// 	ButtonWeatherWarning  = "⚠️ Warnings"
-// )
-
-// func BuildWeatherKeyboard() tgbotapi.ReplyKeyboardMarkup {
-// 	return BuildModuleKeyboard(
-// 		ButtonWeatherToday,
-// 		ButtonWeatherTomorrow,
-// 		ButtonWeatherWarning,
-// 	)
-// }
+func BuildWeatherKeyboard() tgbotapi.ReplyKeyboardMarkup {
+	return BuildModuleKeyboard(
+		ButtonWeatherToday,
+	)
+}
