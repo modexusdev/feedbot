@@ -3,34 +3,10 @@ package storage
 
 import (
 	"database/sql"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/modexusdev/feedbot/internal/helper"
-
-	_ "modernc.org/sqlite"
 )
-
-const youtubeDB = "data/feedbot.db"
-
-func openYoutubeDB() (*sql.DB, error) {
-	if err := os.MkdirAll(filepath.Dir(youtubeDB), 0755); err != nil {
-		return nil, err
-	}
-
-	db, err := sql.Open("sqlite", youtubeDB)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := createYoutubeTable(db); err != nil {
-		db.Close()
-		return nil, err
-	}
-
-	return db, nil
-}
 
 func createYoutubeTable(db *sql.DB) error {
 	_, err := db.Exec(`
@@ -50,7 +26,7 @@ func createYoutubeTable(db *sql.DB) error {
 
 // SaveYoutubeChannel inserts or updates a YouTube channel in the database.
 func SaveYoutubeChannel(channel YoutubeChannel) (YoutubeChannel, error) {
-	db, err := openYoutubeDB()
+	db, err := openDB()
 	if err != nil {
 		return channel, err
 	}
@@ -179,7 +155,7 @@ func findYoutubeChannel(db *sql.DB, handle, rssURL string) (YoutubeChannel, bool
 
 // YoutubeChannelExists checks whether a YouTube channel already exists.
 func YoutubeChannelExists(handle, rssURL string) bool {
-	db, err := openYoutubeDB()
+	db, err := openDB()
 	if err != nil {
 		return false
 	}
@@ -195,7 +171,7 @@ func YoutubeChannelExists(handle, rssURL string) bool {
 
 // GetYoutubeChannels returns all saved YouTube channels.
 func GetYoutubeChannels() ([]YoutubeChannel, error) {
-	db, err := openYoutubeDB()
+	db, err := openDB()
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +221,7 @@ func GetYoutubeChannels() ([]YoutubeChannel, error) {
 
 // DeleteYoutubeChannel removes a YouTube channel by ID.
 func DeleteYoutubeChannel(id string) error {
-	db, err := openYoutubeDB()
+	db, err := openDB()
 	if err != nil {
 		return err
 	}
