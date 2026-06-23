@@ -17,6 +17,7 @@ func main() {
 	// Define which services are enabled for this bot instance.
 	services := commands.EnabledServices{
 		Youtube: true,
+		Weather: true,
 		Github:  false,
 		RSS:     false,
 	}

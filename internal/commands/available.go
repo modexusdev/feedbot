@@ -48,5 +48,28 @@ func AvailableCommands(services EnabledServices) []AvailableCommand {
 
 	}
 
+	if services.Weather {
+		commands = append(commands, AvailableCommand{
+			Name:        "weather today",
+			Description: "Show today's weather",
+			Emoji:       "🌤",
+			Service:     "weather",
+		})
+
+		commands = append(commands, AvailableCommand{
+			Name:        "weather tomorrow",
+			Description: "Show tomorrow's weather",
+			Emoji:       "🌤",
+			Service:     "weather",
+		})
+
+		commands = append(commands, AvailableCommand{
+			Name:        "weather warnings",
+			Description: "Show weather warnings",
+			Emoji:       "⚠️",
+			Service:     "weather",
+		})
+	}
+
 	return commands
 }

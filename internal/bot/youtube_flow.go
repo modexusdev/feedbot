@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/modexusdev/feedbot/internal/commands"
 	"github.com/modexusdev/feedbot/internal/reply"
 	"github.com/modexusdev/feedbot/internal/storage"
 	"github.com/modexusdev/feedbot/internal/youtube"
@@ -145,4 +146,47 @@ func (b *Bot) handleYoutubeRemoveNumber(chatID int64, text string) {
 	}
 
 	b.sendMessage(chatID, reply.YoutubeFormat("✅ Removed:\n\n"+channel.Name))
+}
+
+// handleYoutubeCommand processes all YouTube-related command actions.
+func (b *Bot) handleYoutubeCommand(chatID int64, cmd commands.Command) bool {
+	if cmd.Action == "" {
+		b.sendYoutubeMenu(chatID)
+		return true
+	}
+
+	switch cmd.Action {
+	case "check":
+		go youtube.CheckAllChannels()
+		b.sendMessage(chatID, reply.YoutubeFormat("YouTube check started."))
+		return true
+
+	case "add":
+		b.waitingForYoutubeLink[chatID] = true
+		b.sendMessage(chatID, reply.YoutubeFormat("Send me a YouTube channel link or handle."))
+		return true
+
+	case "list":
+		b.handleYoutubeList(chatID)
+		return true
+
+	case "remove":
+		b.handleYoutubeRemoveStart(chatID)
+		return true
+	}
+
+	return false
+}
+func (b *Bot) sendYoutubeMenu(chatID int64) {
+	msg := tgbotapi.NewMessage(
+		chatID,
+		reply.YoutubeFormat("Choose a YouTube action."),
+	)
+
+	msg.ParseMode = tgbotapi.ModeHTML
+	msg.ReplyMarkup = commands.BuildYoutubeKeyboard()
+
+	if _, err := b.api.Send(msg); err != nil {
+		log.Printf("failed to send youtube menu: %v", err)
+	}
 }
