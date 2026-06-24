@@ -17,7 +17,8 @@ const (
 	ButtonYoutubeRemove = "➖ Remove"
 	ButtonYoutubeCheck  = "🔄 Check"
 
-	ButtonWeatherToday = "🌤 Today"
+	ButtonWeatherToday    = "🌤 Today"
+	ButtonWeatherTomorrow = "🌥 Tomorrow"
 
 	ButtonBack = "🔙 Back"
 )
@@ -43,7 +44,8 @@ func NormalizeKeyboardText(text string) string {
 		return "#weather"
 	case ButtonWeatherToday:
 		return "#weather today"
-
+	case ButtonWeatherTomorrow:
+		return "#weather tomorrow"
 	case ButtonBack:
 		return "#help"
 	default:
@@ -172,5 +174,6 @@ func BuildYoutubeKeyboard() tgbotapi.ReplyKeyboardMarkup {
 func BuildWeatherKeyboard() tgbotapi.ReplyKeyboardMarkup {
 	return BuildModuleKeyboard(
 		ButtonWeatherToday,
+		ButtonWeatherTomorrow,
 	)
 }

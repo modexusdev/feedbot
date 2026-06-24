@@ -10,6 +10,18 @@ import (
 	"github.com/modexusdev/feedbot/internal/weather"
 )
 
+type WeatherLocation struct {
+	Name string
+	Lat  float64
+	Lon  float64
+}
+
+var weatherLocation = WeatherLocation{
+	Name: "Halle (Saale)",
+	Lat:  51.48158,
+	Lon:  11.97947,
+}
+
 func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 	if cmd.Action == "" {
 		b.sendWeatherMenu(chatID)
@@ -19,9 +31,10 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 	switch cmd.Action {
 	case "today":
 		msg, err := weather.GetWeather(
-			69.6492,
-			18.9553,
-			"Tromsø",
+			weatherLocation.Lat,
+			weatherLocation.Lon,
+			weatherLocation.Name,
+			0,
 		)
 
 		if err != nil {
@@ -36,7 +49,22 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 		return true
 
 	case "tomorrow":
-		b.sendMessage(chatID, reply.Format("🌤", "Weather tomorrow will be shown here."))
+		msg, err := weather.GetWeather(
+			weatherLocation.Lat,
+			weatherLocation.Lon,
+			weatherLocation.Name,
+			1,
+		)
+
+		if err != nil {
+			b.sendMessage(
+				chatID,
+				reply.Format("❌", "Could not load weather data."),
+			)
+			return true
+		}
+
+		b.sendMessage(chatID, msg)
 		return true
 
 	case "warnings":

@@ -11,7 +11,7 @@ func main() {
 	lat := 51.4828
 	lon := 11.9697
 
-	result, err := weather.FetchWeather(lat, lon)
+	result, err := weather.FetchWeather(lat, lon, 1)
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -87,16 +87,17 @@ type openMeteoDaily struct {
 	Sunset         []string  `json:"sunset"`
 }
 
-func FetchWeather(lat, lon float64) (WeatherResponse, error) {
+func FetchWeather(lat, lon float64, dayOffset int) (WeatherResponse, error) {
+	forecastDays := dayOffset + 1
+
 	url := fmt.Sprintf(
-		"https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&timezone=auto&forecast_days=1&current=temperature_2m,apparent_temperature,rain,snowfall,weather_code,cloud_cover,is_day&hourly=temperature_2m,rain,snowfall,weather_code,cloud_cover,is_day&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset",
+		"https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&timezone=auto&forecast_days=%d&current=temperature_2m,apparent_temperature,rain,snowfall,weather_code,cloud_cover,is_day&hourly=temperature_2m,rain,snowfall,weather_code,cloud_cover,is_day&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset",
 		lat,
 		lon,
+		forecastDays,
 	)
 
-	client := http.Client{
-		Timeout: 10 * time.Second,
-	}
+	client := http.Client{Timeout: 10 * time.Second}
 
 	resp, err := client.Get(url)
 	if err != nil {
@@ -109,22 +110,20 @@ func FetchWeather(lat, lon float64) (WeatherResponse, error) {
 	}
 
 	var raw openMeteoResponse
-
 	if err := json.NewDecoder(resp.Body).Decode(&raw); err != nil {
 		return WeatherResponse{}, err
 	}
 
-	return filterWeather(raw), nil
+	return filterWeather(raw, dayOffset), nil
 }
-
-func filterWeather(raw openMeteoResponse) WeatherResponse {
+func filterWeather(raw openMeteoResponse, dayOffset int) WeatherResponse {
 	return WeatherResponse{
 		Latitude:  raw.Latitude,
 		Longitude: raw.Longitude,
 		Timezone:  raw.Timezone,
 		Current:   filterCurrent(raw.Current),
-		Hourly:    filterHourly(raw.Hourly),
-		Daily:     filterDaily(raw.Daily),
+		Hourly:    filterHourly(raw.Hourly, raw.Daily.Time[dayOffset]),
+		Daily:     filterDaily(raw.Daily, dayOffset),
 	}
 }
 
@@ -141,7 +140,7 @@ func filterCurrent(current openMeteoCurrent) WeatherCurrent {
 	}
 }
 
-func filterHourly(hourly openMeteoHourly) []WeatherHourlyItem {
+func filterHourly(hourly openMeteoHourly, targetDate string) []WeatherHourlyItem {
 	wantedHours := map[string]bool{
 		"06:00": true,
 		"09:00": true,
@@ -155,7 +154,12 @@ func filterHourly(hourly openMeteoHourly) []WeatherHourlyItem {
 	var result []WeatherHourlyItem
 
 	for i, t := range hourly.Time {
+		date := getDate(t)
 		hour := getHour(t)
+
+		if date != targetDate {
+			continue
+		}
 
 		if !wantedHours[hour] {
 			continue
@@ -174,21 +178,28 @@ func filterHourly(hourly openMeteoHourly) []WeatherHourlyItem {
 
 	return result
 }
-
-func filterDaily(daily openMeteoDaily) WeatherDaily {
-	if len(daily.Time) == 0 {
+func filterDaily(daily openMeteoDaily, dayOffset int) WeatherDaily {
+	if len(daily.Time) <= dayOffset {
 		return WeatherDaily{}
 	}
 
 	return WeatherDaily{
-		Date:           daily.Time[0],
-		MaxTemperature: daily.TemperatureMax[0],
-		MinTemperature: daily.TemperatureMin[0],
-		Sunrise:        daily.Sunrise[0],
-		Sunset:         daily.Sunset[0],
+		Date:           daily.Time[dayOffset],
+		MaxTemperature: daily.TemperatureMax[dayOffset],
+		MinTemperature: daily.TemperatureMin[dayOffset],
+		Sunrise:        daily.Sunrise[dayOffset],
+		Sunset:         daily.Sunset[dayOffset],
 	}
 }
 
+func getDate(value string) string {
+	parts := strings.Split(value, "T")
+	if len(parts) != 2 {
+		return ""
+	}
+
+	return parts[0]
+}
 func getHour(value string) string {
 	parts := strings.Split(value, "T")
 	if len(parts) != 2 {

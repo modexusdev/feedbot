@@ -7,43 +7,46 @@ import (
 	"time"
 )
 
-func FormatWeatherMessage(location string, data WeatherResponse) string {
+func FormatWeatherMessage(location string, data WeatherResponse, dayOffset int) string {
 	var b strings.Builder
 
 	fmt.Fprintf(&b, "📍 %s\n", location)
-	fmt.Fprintf(
-		&b,
-		"📅 %s • 🕘 %s Uhr\n\n",
-		formatDate(data.Current.Time),
-		formatTime(data.Current.Time),
-	)
 
 	fmt.Fprintf(
 		&b,
-		"🌡️ Aktuell: %.1f°C \n",
-		data.Current.CurrentTemperature,
+		"📅 %s\n\n",
+		formatDate(data.Daily.Date),
 	)
-	fmt.Fprintf(
-		&b,
-		"%s Gefühlt: %.1f°C\n",
-		feelsLikeIcon(
+
+	if dayOffset == 0 {
+		fmt.Fprintf(
+			&b,
+			"🌡️ Aktuell: %.1f°C \n",
 			data.Current.CurrentTemperature,
+		)
+
+		fmt.Fprintf(
+			&b,
+			"%s Gefühlt: %.1f°C\n",
+			feelsLikeIcon(
+				data.Current.CurrentTemperature,
+				data.Current.FeelsLike,
+			),
 			data.Current.FeelsLike,
-		),
-		data.Current.FeelsLike,
-	)
+		)
 
-	fmt.Fprintf(
-		&b,
-		"☁️ Bewölkung: %d%%\n",
-		data.Current.CloudCover,
-	)
+		fmt.Fprintf(
+			&b,
+			"☁️ Bewölkung: %d%%\n",
+			data.Current.CloudCover,
+		)
 
-	fmt.Fprintf(
-		&b,
-		"🌤️ Status: %s\n\n",
-		weatherStatus(data.Current.WeatherCode),
-	)
+		fmt.Fprintf(
+			&b,
+			"🌤️ Status: %s\n\n",
+			weatherStatus(data.Current.WeatherCode),
+		)
+	}
 
 	fmt.Fprintf(
 		&b,
@@ -59,7 +62,7 @@ func FormatWeatherMessage(location string, data WeatherResponse) string {
 
 	fmt.Fprintf(
 		&b,
-		"🌄  Sunrise: %s\n",
+		"🌄 Sunrise: %s\n",
 		formatTime(data.Daily.Sunrise),
 	)
 
