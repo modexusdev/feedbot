@@ -24,6 +24,7 @@ func main() {
 	// }
 
 	// fmt.Println(string(data))
+
 	city := "Sankt"
 
 	fmt.Println("Searching for:", city)

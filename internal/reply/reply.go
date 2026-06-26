@@ -69,5 +69,7 @@ func WeatherFormat(text string) string {
 
 // AutomationFormat creates a formatted automation notification message.
 func AutomationFormat(sourceEmoji, sourceName, text string) string {
-	return Format("🚀", "<b>Automation:</b>\n\n"+text)
+	return "<b>🚀 FeedBot • Automation 🤖</b>\n━━━━━━━━━━━━\n\n<b>" +
+		sourceEmoji + " " + sourceName + ":</b>\n\n" +
+		text
 }

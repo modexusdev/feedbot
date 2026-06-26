@@ -127,3 +127,51 @@ func parseLatLon(latValue, lonValue string) (float64, float64, error) {
 
 	return lat, lon, nil
 }
+
+//
+
+func FormatLocationList(locations []GeoLocation) string {
+	var b strings.Builder
+
+	b.WriteString(" <b>Standort auswählen</b>\n")
+	b.WriteString("Sende die passende Nummer.\n\n")
+
+	for i, loc := range locations {
+		fmt.Fprintf(
+			&b,
+			"<b>%d.</b> %s %s\n",
+			i+1,
+			loc.Flag(),
+			loc.Title(),
+		)
+
+		if subtitle := loc.Subtitle(); subtitle != "" {
+			b.WriteString("   " + subtitle + "\n")
+		}
+
+		b.WriteString("\n")
+	}
+
+	return strings.TrimSpace(b.String())
+}
+
+func FormatSelectedLocation(loc GeoLocation) string {
+	var b strings.Builder
+
+	b.WriteString("🌍 <b>Standort gespeichert</b>\n\n")
+	fmt.Fprintf(&b, "%s %s\n", loc.Flag(), loc.Title())
+
+	if subtitle := loc.Subtitle(); subtitle != "" {
+		b.WriteString(subtitle)
+	}
+
+	return b.String()
+}
+
+func (loc GeoLocation) Title() string {
+	if loc.Name != "" {
+		return loc.Name
+	}
+
+	return "Unbekannter Standort"
+}

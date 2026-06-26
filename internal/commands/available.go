@@ -64,8 +64,8 @@ func AvailableCommands(services EnabledServices) []AvailableCommand {
 		})
 
 		commands = append(commands, AvailableCommand{
-			Name:        "weather warnings",
-			Description: "Show weather warnings",
+			Name:        "set location",
+			Description: "Set your location for weather report",
 			Emoji:       "⚠️",
 			Service:     "weather",
 		})

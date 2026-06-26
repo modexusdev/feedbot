@@ -11,15 +11,21 @@ import (
 	"github.com/modexusdev/feedbot/internal/config"
 	"github.com/modexusdev/feedbot/internal/scheduler"
 	"github.com/modexusdev/feedbot/internal/storage"
+	"github.com/modexusdev/feedbot/internal/weather"
 )
 
 type Bot struct {
-	api                     *tgbotapi.BotAPI
-	config                  config.BotConfig
-	services                commands.EnabledServices
+	api      *tgbotapi.BotAPI
+	config   config.BotConfig
+	services commands.EnabledServices
+	// Youtube Service tracking
 	waitingForYoutubeLink   map[int64]bool
 	pendingYoutubeChannel   map[int64]storage.YoutubeChannel
 	waitingForYoutubeRemove map[int64]bool
+	// Weather services tracking
+	waitingForWeatherLocation       map[int64]bool
+	pendingWeatherLocations         map[int64][]weather.GeoLocation
+	waitingForWeatherLocationNumber map[int64]bool
 }
 
 // New creates a new Telegram bot instance with the provided configuration.
@@ -30,12 +36,17 @@ func New(cfg config.BotConfig, services commands.EnabledServices) (*Bot, error) 
 	}
 
 	return &Bot{
-		api:                     api,
-		config:                  cfg,
-		services:                services,
+		api:      api,
+		config:   cfg,
+		services: services,
+		// Youtube Service tracking
 		waitingForYoutubeLink:   make(map[int64]bool),
 		pendingYoutubeChannel:   make(map[int64]storage.YoutubeChannel),
 		waitingForYoutubeRemove: make(map[int64]bool),
+		// Weather services tracking
+		waitingForWeatherLocation:       make(map[int64]bool),
+		pendingWeatherLocations:         make(map[int64][]weather.GeoLocation),
+		waitingForWeatherLocationNumber: make(map[int64]bool),
 	}, nil
 }
 

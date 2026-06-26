@@ -36,14 +36,25 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) {
 
 	chatID := update.Message.Chat.ID
 	text := commands.NormalizeKeyboardText(update.Message.Text)
-
+	// Handle Youtube link tracking
 	if b.waitingForYoutubeLink[chatID] {
 		b.handleYoutubeLink(chatID, text)
 		return
 	}
-
+	// Handle Youtube remove tracking
 	if b.waitingForYoutubeRemove[chatID] {
 		b.handleYoutubeRemoveNumber(chatID, text)
+		return
+	}
+
+	// Handle Weather location tracking
+	if b.waitingForWeatherLocation[chatID] {
+		b.handleWeatherLocation(chatID, text)
+		return
+	}
+	// Handle Weather location number tracking
+	if b.waitingForWeatherLocationNumber[chatID] {
+		b.handleWeatherLocationNumber(chatID, text)
 		return
 	}
 
