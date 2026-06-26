@@ -32,6 +32,7 @@ type nominatimResult struct {
 	} `json:"address"`
 }
 
+// GeocodeCity returns the geolocation for the given city name
 func GeocodeCity(city string) ([]GeoLocation, error) {
 	query := normalizeCityQuery(city)
 
@@ -106,6 +107,7 @@ func GeocodeCity(city string) ([]GeoLocation, error) {
 	return locations, nil
 }
 
+// normalizeCityQuery returns the normalized city query string
 func normalizeCityQuery(city string) string {
 	city = strings.TrimSpace(city)
 	city = strings.ReplaceAll(city, "_", " ")
@@ -114,6 +116,8 @@ func normalizeCityQuery(city string) string {
 	parts := strings.Fields(city)
 	return strings.Join(parts, " ")
 }
+
+// parseLatLon parses the latitude and longitude values from the given strings
 func parseLatLon(latValue, lonValue string) (float64, float64, error) {
 	lat, err := strconv.ParseFloat(latValue, 64)
 	if err != nil {
@@ -128,8 +132,7 @@ func parseLatLon(latValue, lonValue string) (float64, float64, error) {
 	return lat, lon, nil
 }
 
-//
-
+// FormatLocationList returns the formatted location list for the given locations
 func FormatLocationList(locations []GeoLocation) string {
 	var b strings.Builder
 
@@ -155,6 +158,7 @@ func FormatLocationList(locations []GeoLocation) string {
 	return strings.TrimSpace(b.String())
 }
 
+// FormatSelectedLocation returns the formatted selected location for the given location
 func FormatSelectedLocation(loc GeoLocation) string {
 	var b strings.Builder
 

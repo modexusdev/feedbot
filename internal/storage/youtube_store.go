@@ -8,6 +8,7 @@ import (
 	"github.com/modexusdev/feedbot/internal/helper"
 )
 
+// createYoutubeTable creates the youtube_channels table in the database
 func createYoutubeTable(db *sql.DB) error {
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS youtube_channels (
@@ -114,6 +115,7 @@ func SaveYoutubeChannel(channel YoutubeChannel) (YoutubeChannel, error) {
 	return channel, err
 }
 
+// findYoutubeChannel finds a YouTube channel by handle or RSS URL
 func findYoutubeChannel(db *sql.DB, handle, rssURL string) (YoutubeChannel, bool, error) {
 	var channel YoutubeChannel
 

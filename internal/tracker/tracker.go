@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/modexusdev/feedbot/internal/scheduler"
+	"github.com/modexusdev/feedbot/internal/weather"
 	"github.com/modexusdev/feedbot/internal/youtube"
 )
 
@@ -17,4 +18,8 @@ func Watch() {
 		},
 		youtube.CheckAllChannels,
 	)
+	// Push today's weather report at 6 AM and tomorrow's at 6 PM
+	go scheduler.DailyAt(6, 0, weather.PushTodayReport)
+	// Push tomorrow's weather report at 6 PM
+	go scheduler.DailyAt(18, 0, weather.PushTomorrowReport)
 }

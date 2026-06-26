@@ -72,6 +72,7 @@ func (b *Bot) sendMessage(chatID int64, text string) {
 	}
 }
 
+// Sends an automation message to the allowed user ID, if configured.
 func (b *Bot) sendAutomation(text string) {
 	if len(b.config.AllowedUserIDs) == 0 {
 		log.Println("no allowed user id found for automation message")
@@ -87,6 +88,7 @@ func (b *Bot) sendAutomation(text string) {
 	b.sendMessage(chatID, text)
 }
 
+// Listens to the scheduler queue and sends automation messages to the allowed user ID, if configured.
 func (b *Bot) ListenScheduler() {
 	for msg := range scheduler.Queue {
 		b.sendAutomation(msg.Text)

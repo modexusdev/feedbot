@@ -87,6 +87,7 @@ type openMeteoDaily struct {
 	Sunset         []string  `json:"sunset"`
 }
 
+// FetchWeather fetches the weather forecast for the given latitude, longitude, and day offset
 func FetchWeather(lat, lon float64, dayOffset int) (WeatherResponse, error) {
 	forecastDays := dayOffset + 1
 
@@ -116,6 +117,8 @@ func FetchWeather(lat, lon float64, dayOffset int) (WeatherResponse, error) {
 
 	return filterWeather(raw, dayOffset), nil
 }
+
+// filterWeather filters the raw weather response into a structured WeatherResponse
 func filterWeather(raw openMeteoResponse, dayOffset int) WeatherResponse {
 	return WeatherResponse{
 		Latitude:  raw.Latitude,
@@ -127,6 +130,7 @@ func filterWeather(raw openMeteoResponse, dayOffset int) WeatherResponse {
 	}
 }
 
+// filterCurrent filters the raw current weather data into a structured WeatherCurrent
 func filterCurrent(current openMeteoCurrent) WeatherCurrent {
 	return WeatherCurrent{
 		Time:               current.Time,
@@ -140,6 +144,7 @@ func filterCurrent(current openMeteoCurrent) WeatherCurrent {
 	}
 }
 
+// filterHourly filters the raw hourly weather data into a structured []WeatherHourlyItem
 func filterHourly(hourly openMeteoHourly, targetDate string) []WeatherHourlyItem {
 	wantedHours := map[string]bool{
 		"06:00": true,
@@ -192,6 +197,7 @@ func filterDaily(daily openMeteoDaily, dayOffset int) WeatherDaily {
 	}
 }
 
+// getDate extracts the date part from a timestamp string
 func getDate(value string) string {
 	parts := strings.Split(value, "T")
 	if len(parts) != 2 {

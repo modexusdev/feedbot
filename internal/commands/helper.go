@@ -8,19 +8,20 @@ import (
 )
 
 const (
+	// mainmenu ButtonBack returns to the main menu.
 	ButtonYoutube = "🎥 YouTube"
 	ButtonWeather = "🌤 Weather"
 	ButtonHelp    = "📚 Help"
-
+	// youtube buttons
 	ButtonYoutubeAdd    = "➕ Add"
 	ButtonYoutubeList   = "📋 List"
 	ButtonYoutubeRemove = "➖ Remove"
 	ButtonYoutubeCheck  = "🔄 Check"
-
+	// weather buttons
 	ButtonWeatherToday       = "🌤 Today"
 	ButtonWeatherTomorrow    = "🌥 Tomorrow"
 	ButtonWeatherSetLocation = "📍 Set Location"
-
+	// back button
 	ButtonBack = "🔙 Back"
 )
 
@@ -29,10 +30,14 @@ func NormalizeKeyboardText(text string) string {
 	text = strings.TrimSpace(text)
 
 	switch text {
+	// main menu buttons
 	case ButtonYoutube:
 		return "#youtube"
+	case ButtonWeather:
+		return "#weather"
 	case ButtonHelp:
 		return "#help"
+	// youtube buttons
 	case ButtonYoutubeAdd:
 		return "#youtube add"
 	case ButtonYoutubeList:
@@ -41,8 +46,7 @@ func NormalizeKeyboardText(text string) string {
 		return "#youtube remove"
 	case ButtonYoutubeCheck:
 		return "#youtube check"
-	case ButtonWeather:
-		return "#weather"
+	// weather buttons
 	case ButtonWeatherToday:
 		return "#weather today"
 	case ButtonWeatherTomorrow:
@@ -165,6 +169,7 @@ func BuildModuleKeyboard(buttons ...string) tgbotapi.ReplyKeyboardMarkup {
 	return keyboard
 }
 
+// BuildYoutubeKeyboard returns a keyboard for the youtube module.
 func BuildYoutubeKeyboard() tgbotapi.ReplyKeyboardMarkup {
 	return BuildModuleKeyboard(
 		ButtonYoutubeAdd,
@@ -174,6 +179,7 @@ func BuildYoutubeKeyboard() tgbotapi.ReplyKeyboardMarkup {
 	)
 }
 
+// BuildWeatherKeyboard returns a keyboard for the weather module.
 func BuildWeatherKeyboard() tgbotapi.ReplyKeyboardMarkup {
 	return BuildModuleKeyboard(
 		ButtonWeatherToday,

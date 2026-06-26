@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Flag returns the flag emoji for the given location
 func (loc GeoLocation) Flag() string {
 	switch strings.ToLower(strings.TrimSpace(loc.Country)) {
 
@@ -145,6 +146,8 @@ func (loc GeoLocation) Flag() string {
 		return "🌍"
 	}
 }
+
+// Subtitle returns the subtitle for the given location
 func (loc GeoLocation) Subtitle() string {
 	switch {
 	case loc.Admin1 != "" && loc.Country != "":

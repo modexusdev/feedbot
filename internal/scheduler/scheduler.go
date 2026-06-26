@@ -73,3 +73,28 @@ func (s Schedule) IsQuietTime() bool {
 
 	return hour >= s.QuietFrom && hour < s.QuietTo
 }
+
+// DailyAt runs a function at a specific time every day.
+func DailyAt(hour, minute int, checkFunc func()) {
+	for {
+		now := time.Now()
+
+		next := time.Date(
+			now.Year(),
+			now.Month(),
+			now.Day(),
+			hour,
+			minute,
+			0,
+			0,
+			now.Location(),
+		)
+
+		if !next.After(now) {
+			next = next.Add(24 * time.Hour)
+		}
+
+		time.Sleep(time.Until(next))
+		checkFunc()
+	}
+}

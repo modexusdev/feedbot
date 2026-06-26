@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// createWeatherTable creates the weather_location table in the database
 func createWeatherTable(db *sql.DB) error {
 	query := `
 	CREATE TABLE IF NOT EXISTS weather_location (
@@ -23,6 +24,7 @@ func createWeatherTable(db *sql.DB) error {
 	return err
 }
 
+// SaveWeatherLocation saves a weather location to the database
 func SaveWeatherLocation(location WeatherLocation) (WeatherLocation, error) {
 	db, err := openDB()
 	if err != nil {
@@ -77,6 +79,7 @@ func SaveWeatherLocation(location WeatherLocation) (WeatherLocation, error) {
 	return location, nil
 }
 
+// GetWeatherLocation retrieves the weather location from the database
 func GetWeatherLocation() (WeatherLocation, error) {
 	db, err := openDB()
 	if err != nil {

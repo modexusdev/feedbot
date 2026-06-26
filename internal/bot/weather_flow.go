@@ -14,14 +14,17 @@ import (
 	"github.com/modexusdev/feedbot/internal/weather"
 )
 
+// Handles the weather command and sends the appropriate weather report to the user.
 func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 	if cmd.Action == "" {
 		b.sendWeatherMenu(chatID)
 		return true
 	}
-
+	// Switch on the action to determine which weather report to send.
 	switch cmd.Action {
+	// Sends the weather report for today.
 	case "today":
+		// Get location from storage and send weather report.
 		location := getWeatherLocation()
 		msg, err := weather.GetWeather(
 			location.Latitude,
@@ -38,7 +41,9 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 		b.sendMessage(chatID, msg)
 		return true
 
+	// Sends the weather report for tomorrow.
 	case "tomorrow":
+		// Get location from storage and send weather report.
 		location := getWeatherLocation()
 		msg, err := weather.GetWeather(
 			location.Latitude,
@@ -54,7 +59,7 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 
 		b.sendMessage(chatID, msg)
 		return true
-
+		// Handles the location action, waiting for the user to send the location name.
 	case "location":
 		b.waitingForWeatherLocation[chatID] = true
 
@@ -69,6 +74,7 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 	return false
 }
 
+// Sends the weather menu to the user, allowing them to choose an action.
 func (b *Bot) sendWeatherMenu(chatID int64) {
 	msg := tgbotapi.NewMessage(
 		chatID,
@@ -82,6 +88,8 @@ func (b *Bot) sendWeatherMenu(chatID int64) {
 		log.Printf("failed to send weather menu: %v", err)
 	}
 }
+
+// Handles the location action, waiting for the user to send the location name.
 func (b *Bot) handleWeatherLocation(chatID int64, city string) {
 	delete(b.waitingForWeatherLocation, chatID)
 
@@ -104,6 +112,8 @@ func (b *Bot) handleWeatherLocation(chatID int64, city string) {
 		reply.Format("📍", weather.FormatLocationList(locations)),
 	)
 }
+
+// Handles the location number action, waiting for the user to send the location number.
 func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
 	locations := b.pendingWeatherLocations[chatID]
 
@@ -143,6 +153,8 @@ func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
 		reply.Format("✅", weather.FormatSelectedLocation(loc)),
 	)
 }
+
+// Retrieves the weather location from the storage, or returns a default location if none is found.
 func getWeatherLocation() storage.WeatherLocation {
 	location, err := storage.GetWeatherLocation()
 	if err == nil {

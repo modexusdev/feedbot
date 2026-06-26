@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// FormatWeatherMessage returns the formatted weather message for the given location and weather data
 func FormatWeatherMessage(location string, data WeatherResponse, dayOffset int) string {
 	var b strings.Builder
 
@@ -81,6 +82,8 @@ func FormatWeatherMessage(location string, data WeatherResponse, dayOffset int) 
 
 	return b.String()
 }
+
+// formatHourlyLine returns the formatted hourly line for the given weather item
 func formatHourlyLine(h WeatherHourlyItem) string {
 	parts := []string{
 		fmt.Sprintf(
@@ -105,6 +108,8 @@ func formatHourlyLine(h WeatherHourlyItem) string {
 
 	return strings.Join(parts, " • ")
 }
+
+// formatDate returns the date part of the given timestamp string
 func formatDate(value string) string {
 	layout := "2006-01-02"
 
@@ -120,6 +125,7 @@ func formatDate(value string) string {
 	return t.Format("02.01.2006")
 }
 
+// formatTime returns the time part of the given timestamp string
 func formatTime(value string) string {
 	t, err := time.Parse("2006-01-02T15:04", value)
 	if err != nil {
@@ -129,6 +135,7 @@ func formatTime(value string) string {
 	return t.Format("15:04")
 }
 
+// weatherIcon returns the appropriate icon for the given weather code
 func weatherIcon(code int) string {
 	switch code {
 	case 0:
@@ -150,6 +157,7 @@ func weatherIcon(code int) string {
 	}
 }
 
+// weatherStatus returns the status of the weather based on the given code
 func weatherStatus(code int) string {
 	switch code {
 	case 0:
@@ -176,6 +184,8 @@ func weatherStatus(code int) string {
 		return "Unbekannt"
 	}
 }
+
+// timeIcon returns the appropriate icon for the given time
 func timeIcon(value string) string {
 	t, err := time.Parse("2006-01-02T15:04", value)
 	if err != nil {
@@ -197,6 +207,8 @@ func timeIcon(value string) string {
 		return "🌙"
 	}
 }
+
+// timeIcon returns the appropriate icon for the given time
 func feelsLikeIcon(actual, feels float64) string {
 	diff := feels - actual
 
