@@ -153,7 +153,7 @@ func pushYoutubeVideo(channel *storage.YoutubeChannel, video LatestVideo) {
 				"━━━━━━━━━━━━\n"+
 				"%s\n"+
 				"━━━━━━━━━━━━\n\n"+
-				"🗓 %s\n\n"+
+				"🕒 %s\n\n"+
 				"🔗 %s",
 			html.EscapeString(channel.Name),
 			html.EscapeString(video.Title),

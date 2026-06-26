@@ -10,20 +10,9 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/modexusdev/feedbot/internal/commands"
 	"github.com/modexusdev/feedbot/internal/reply"
+	"github.com/modexusdev/feedbot/internal/storage"
 	"github.com/modexusdev/feedbot/internal/weather"
 )
-
-type WeatherLocation struct {
-	Name string
-	Lat  float64
-	Lon  float64
-}
-
-var weatherLocation = WeatherLocation{
-	Name: "Halle (Saale)",
-	Lat:  51.48158,
-	Lon:  11.97947,
-}
 
 func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 	if cmd.Action == "" {
@@ -33,10 +22,11 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 
 	switch cmd.Action {
 	case "today":
+		location := getWeatherLocation()
 		msg, err := weather.GetWeather(
-			weatherLocation.Lat,
-			weatherLocation.Lon,
-			weatherLocation.Name,
+			location.Latitude,
+			location.Longitude,
+			location.Name,
 			0,
 		)
 
@@ -49,10 +39,11 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 		return true
 
 	case "tomorrow":
+		location := getWeatherLocation()
 		msg, err := weather.GetWeather(
-			weatherLocation.Lat,
-			weatherLocation.Lon,
-			weatherLocation.Name,
+			location.Latitude,
+			location.Longitude,
+			location.Name,
 			1,
 		)
 
@@ -132,10 +123,16 @@ func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
 
 	loc := locations[number-1]
 
-	weatherLocation = WeatherLocation{
-		Name: loc.Name,
-		Lat:  loc.Latitude,
-		Lon:  loc.Longitude,
+	_, err = storage.SaveWeatherLocation(storage.WeatherLocation{
+		Name:      loc.Name,
+		Country:   loc.Country,
+		Latitude:  loc.Latitude,
+		Longitude: loc.Longitude,
+	})
+
+	if err != nil {
+		b.sendMessage(chatID, reply.Format("❌", "Standort konnte nicht gespeichert werden."))
+		return
 	}
 
 	delete(b.pendingWeatherLocations, chatID)
@@ -145,4 +142,18 @@ func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
 		chatID,
 		reply.Format("✅", weather.FormatSelectedLocation(loc)),
 	)
+}
+func getWeatherLocation() storage.WeatherLocation {
+	location, err := storage.GetWeatherLocation()
+	if err == nil {
+		return location
+	}
+
+	return storage.WeatherLocation{
+		ID:        "default",
+		Name:      "Berlin",
+		Country:   "Deutschland",
+		Latitude:  52.5173885,
+		Longitude: 13.3951309,
+	}
 }

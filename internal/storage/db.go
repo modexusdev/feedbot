@@ -34,5 +34,9 @@ func runMigrations(db *sql.DB) error {
 		return err
 	}
 
+	if err := createWeatherTable(db); err != nil {
+		return err
+	}
+
 	return nil
 }
