@@ -14,23 +14,30 @@ The goal of FeedBot is to collect updates from different sources and deliver the
 * List saved channels
 * Remove channels
 
+
+### 🌦 Weather
+
+* Search and select a weather location
+* Save the selected location permanently
+* Fallback location when no location is configured
+* Get the weather report for today
+* Get the weather report for tomorrow
+* Receive an automatic weather report every morning for the current day
+* Receive an automatic weather report every evening for the next day
+* Shows current temperature, feels-like temperature, min/max temperature, sunrise, sunset and hourly forecast
+
 ### 🤖 Automation System
 
 * Background scheduler
 * Queue-based notification delivery
 * Configurable check intervals
+* Scheduled daily automation jobs
 
 ### 🔒 Private Bot
 
 * Access restricted to allowed Telegram user IDs
 * Environment-based configuration
 
-## Planned Features
-
-* 🌦 Weather reports
-* 📰 RSS feeds
-* 📰 Hacker News monitoring
-* Additional automation modules
 
 ## Requirements
 
