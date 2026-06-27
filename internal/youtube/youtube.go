@@ -141,6 +141,11 @@ func pushYoutubeVideo(channel *storage.YoutubeChannel, video LatestVideo) {
 
 	t, err := time.Parse(time.RFC3339, video.Published)
 	if err == nil {
+		loc, locErr := time.LoadLocation("Europe/Berlin")
+		if locErr == nil {
+			t = t.In(loc)
+		}
+
 		date = t.Format("02.01.2006 15:04")
 	}
 
