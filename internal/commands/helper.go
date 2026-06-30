@@ -52,7 +52,9 @@ func buttonWeatherTomorrow() string {
 func buttonWeatherSetLocation() string {
 	return "📍 " + i18n.T("button.set_location")
 }
-
+func buttonLanguage() string {
+	return "🌍 " + i18n.T("button.language")
+}
 func buttonBack() string {
 	return "🔙 " + i18n.T("button.back")
 }
@@ -82,6 +84,8 @@ func NormalizeKeyboardText(text string) string {
 		return "#weather tomorrow"
 	case buttonWeatherSetLocation():
 		return "#weather location"
+	case buttonLanguage():
+		return "#language"
 	case buttonBack():
 		return "#help"
 	default:
@@ -135,7 +139,8 @@ func BuildHelpText(services EnabledServices) string {
 		b.WriteString(buttonWeather())
 		b.WriteString("\n")
 	}
-
+	b.WriteString(buttonLanguage())
+	b.WriteString("\n")
 	b.WriteString(buttonHelp())
 	b.WriteString("\n")
 
@@ -161,8 +166,8 @@ func BuildMainKeyboard(services EnabledServices) tgbotapi.ReplyKeyboardMarkup {
 			tgbotapi.NewKeyboardButton(buttonWeather()),
 		))
 	}
-
 	rows = append(rows, tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton(buttonLanguage()),
 		tgbotapi.NewKeyboardButton(buttonHelp()),
 	))
 

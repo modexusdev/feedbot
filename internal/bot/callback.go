@@ -28,6 +28,11 @@ func (b *Bot) handleCallback(callback *tgbotapi.CallbackQuery) {
 		log.Printf("failed to answer callback: %v", err)
 	}
 
+	// Language callbacks
+	if b.handleLanguageCallback(chatID, callback.Data) {
+		return
+	}
+
 	switch callback.Data {
 	case "youtube_add_yes":
 		b.handleYoutubeAddConfirm(chatID)

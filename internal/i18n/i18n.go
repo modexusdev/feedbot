@@ -12,13 +12,14 @@ import (
 type Language struct {
 	Code string
 	Name string
+	Flag string
 }
 
 const DefaultLanguage = "en"
 
 var AvailableLanguages = []Language{
-	{Code: "de", Name: "Deutsch"},
-	{Code: "en", Name: "English"},
+	{Code: "de", Name: "Deutsch", Flag: "🇩🇪"},
+	{Code: "en", Name: "English", Flag: "🇬🇧"},
 }
 
 var (
@@ -95,4 +96,16 @@ func T(key string) string {
 	}
 
 	return key
+}
+func GetAvailableLanguages() []Language {
+	return AvailableLanguages
+}
+func GetLanguageName(code string) string {
+	for _, lang := range AvailableLanguages {
+		if lang.Code == code {
+			return lang.Name
+		}
+	}
+
+	return code
 }
