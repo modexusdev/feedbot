@@ -1,0 +1,14 @@
+{
+  "bot.help_title": "Help",
+  "bot.unknown_command": "Unknown command.",
+  "youtube.check_started": "YouTube check started.",
+  "youtube.send_channel": "Send me a YouTube channel link or handle.",
+  "youtube.list_channels": "Show all YouTube channels.",
+  "youtube.add_confirm": "Do you want to add this YouTube channel?",
+  "youtube.name": "Name",
+  "youtube.handle": "Handle",
+  "youtube.already_added": "This YouTube channel has already been added.",
+  "youtube.no_channels_saved": "No YouTube channels saved.",
+  "youtube.channel_list_title": "YouTube Channel List",
+  "weather.load_error": "Could not load weather data."
+}

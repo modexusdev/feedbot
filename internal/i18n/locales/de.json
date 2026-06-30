@@ -1,0 +1,14 @@
+{
+  "bot.help_title": "Hilfe",
+  "bot.unknown_command": "Unbekannter Befehl.",
+  "youtube.check_started": "YouTube-Prüfung gestartet.",
+  "youtube.send_channel": "Sende mir einen YouTube-Kanal-Link oder Handle.",
+  "youtube.list_channels": "Alle YouTube-Kanäle anzeigen.",
+  "youtube.add_confirm": "Möchtest du diesen YouTube-Kanal hinzufügen?",
+  "youtube.name": "Name",
+  "youtube.handle": "Handle",
+  "youtube.already_added": "Dieser YouTube-Kanal wurde bereits hinzugefügt.",
+  "youtube.no_channels_saved": "Keine YouTube-Kanäle gespeichert.",
+  "youtube.channel_list_title": "YouTube-Kanalliste",
+  "weather.load_error": "Wetterdaten konnten nicht geladen werden."
+}
