@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/modexusdev/feedbot/internal/i18n"
 )
 
 // FormatWeatherMessage returns the formatted weather message for the given location and weather data
@@ -12,68 +14,30 @@ func FormatWeatherMessage(location string, data WeatherResponse, dayOffset int) 
 	var b strings.Builder
 
 	fmt.Fprintf(&b, "📍 %s\n", location)
-
-	fmt.Fprintf(
-		&b,
-		"📅 %s\n\n",
-		formatDate(data.Daily.Date),
-	)
+	fmt.Fprintf(&b, "📅 %s\n\n", formatDate(data.Daily.Date))
 
 	if dayOffset == 0 {
-		fmt.Fprintf(
-			&b,
-			"🌡️ Aktuell: %.1f°C \n",
-			data.Current.CurrentTemperature,
-		)
+		fmt.Fprintf(&b, "🌡️ %s: %.1f°C\n", i18n.T("weather.current"), data.Current.CurrentTemperature)
 
 		fmt.Fprintf(
 			&b,
-			"%s Gefühlt: %.1f°C\n",
-			feelsLikeIcon(
-				data.Current.CurrentTemperature,
-				data.Current.FeelsLike,
-			),
+			"%s %s: %.1f°C\n",
+			feelsLikeIcon(data.Current.CurrentTemperature, data.Current.FeelsLike),
+			i18n.T("weather.feels_like"),
 			data.Current.FeelsLike,
 		)
 
-		fmt.Fprintf(
-			&b,
-			"☁️ Bewölkung: %d%%\n",
-			data.Current.CloudCover,
-		)
-
-		fmt.Fprintf(
-			&b,
-			"🌤️ Status: %s\n\n",
-			weatherStatus(data.Current.WeatherCode),
-		)
+		fmt.Fprintf(&b, "☁️ %s: %d%%\n", i18n.T("weather.cloud_cover"), data.Current.CloudCover)
+		fmt.Fprintf(&b, "🌤️ %s: %s\n\n", i18n.T("weather.status"), weatherStatus(data.Current.WeatherCode))
 	}
 
-	fmt.Fprintf(
-		&b,
-		"🔻 Min: %.1f°C\n",
-		data.Daily.MinTemperature,
-	)
+	fmt.Fprintf(&b, "🔻 %s: %.1f°C\n", i18n.T("weather.min"), data.Daily.MinTemperature)
+	fmt.Fprintf(&b, "🔺 %s: %.1f°C\n\n", i18n.T("weather.max"), data.Daily.MaxTemperature)
 
-	fmt.Fprintf(
-		&b,
-		"🔺 Max: %.1f°C\n\n",
-		data.Daily.MaxTemperature,
-	)
+	fmt.Fprintf(&b, "🌄 %s: %s\n", i18n.T("weather.sunrise"), formatTime(data.Daily.Sunrise))
+	fmt.Fprintf(&b, "🌆 %s: %s\n\n", i18n.T("weather.sunset"), formatTime(data.Daily.Sunset))
 
-	fmt.Fprintf(
-		&b,
-		"🌄 Sunrise: %s\n",
-		formatTime(data.Daily.Sunrise),
-	)
-
-	fmt.Fprintf(
-		&b,
-		"🌆 Sunset: %s\n\n",
-		formatTime(data.Daily.Sunset),
-	)
-
-	b.WriteString("🕘 Forecast:\n\n")
+	fmt.Fprintf(&b, "🕘 %s:\n\n", i18n.T("weather.forecast"))
 
 	for _, h := range data.Hourly {
 		b.WriteString(formatHourlyLine(h))
@@ -161,27 +125,27 @@ func weatherIcon(code int) string {
 func weatherStatus(code int) string {
 	switch code {
 	case 0:
-		return "Klar"
+		return i18n.T("weather.status.clear")
 	case 1:
-		return "Überwiegend klar"
+		return i18n.T("weather.status.mainly_clear")
 	case 2:
-		return "Teilweise bewölkt"
+		return i18n.T("weather.status.partly_cloudy")
 	case 3:
-		return "Bewölkt"
+		return i18n.T("weather.status.cloudy")
 	case 45, 48:
-		return "Nebel"
+		return i18n.T("weather.status.fog")
 	case 51, 53, 55:
-		return "Nieselregen"
+		return i18n.T("weather.status.drizzle")
 	case 61, 63, 65:
-		return "Regen"
+		return i18n.T("weather.status.rain")
 	case 80, 81, 82:
-		return "Regenschauer"
+		return i18n.T("weather.status.rain_showers")
 	case 71, 73, 75:
-		return "Schnee"
+		return i18n.T("weather.status.snow")
 	case 95, 96, 99:
-		return "Gewitter"
+		return i18n.T("weather.status.thunderstorm")
 	default:
-		return "Unbekannt"
+		return i18n.T("weather.status.unknown")
 	}
 }
 

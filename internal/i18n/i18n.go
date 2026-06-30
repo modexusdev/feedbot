@@ -9,7 +9,17 @@ import (
 	"sync"
 )
 
-const DefaultLanguage = "de"
+type Language struct {
+	Code string
+	Name string
+}
+
+const DefaultLanguage = "en"
+
+var AvailableLanguages = []Language{
+	{Code: "de", Name: "Deutsch"},
+	{Code: "en", Name: "English"},
+}
 
 var (
 	currentLanguage = DefaultLanguage
@@ -20,8 +30,8 @@ var (
 func Init() error {
 	basePath := "internal/i18n/locales"
 
-	for _, code := range []string{"de", "en"} {
-		filePath := filepath.Join(basePath, code+".json")
+	for _, lang := range AvailableLanguages {
+		filePath := filepath.Join(basePath, lang.Code+".json")
 
 		data, err := os.ReadFile(filePath)
 		if err != nil {
@@ -33,7 +43,7 @@ func Init() error {
 			return fmt.Errorf("parse language file %s: %w", filePath, err)
 		}
 
-		translations[code] = messages
+		translations[lang.Code] = messages
 	}
 
 	return nil
@@ -56,6 +66,14 @@ func GetLanguage() string {
 	defer mu.RUnlock()
 
 	return currentLanguage
+}
+
+func IsSupported(code string) bool {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	_, ok := translations[code]
+	return ok
 }
 
 func Lang() func(string) string {

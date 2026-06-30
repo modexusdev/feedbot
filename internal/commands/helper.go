@@ -5,55 +5,84 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/modexusdev/feedbot/internal/i18n"
 )
 
-const (
-	// mainmenu ButtonBack returns to the main menu.
-	ButtonYoutube = "🎥 YouTube"
-	ButtonWeather = "🌤 Weather"
-	ButtonHelp    = "📚 Help"
-	// youtube buttons
-	ButtonYoutubeAdd    = "➕ Add"
-	ButtonYoutubeList   = "📋 List"
-	ButtonYoutubeRemove = "➖ Remove"
-	ButtonYoutubeCheck  = "🔄 Check"
-	// weather buttons
-	ButtonWeatherToday       = "🌤 Today"
-	ButtonWeatherTomorrow    = "🌥 Tomorrow"
-	ButtonWeatherSetLocation = "📍 Set Location"
-	// back button
-	ButtonBack = "🔙 Back"
-)
+type KeyboardButtonConfig struct {
+	Text    string
+	Command string
+}
+
+func buttonYoutube() string {
+	return "🎥 " + i18n.T("button.youtube")
+}
+
+func buttonWeather() string {
+	return "🌤 " + i18n.T("button.weather")
+}
+
+func buttonHelp() string {
+	return "📚 " + i18n.T("button.help")
+}
+
+func buttonYoutubeAdd() string {
+	return "➕ " + i18n.T("button.add")
+}
+
+func buttonYoutubeList() string {
+	return "📋 " + i18n.T("button.list")
+}
+
+func buttonYoutubeRemove() string {
+	return "➖ " + i18n.T("button.remove")
+}
+
+func buttonYoutubeCheck() string {
+	return "🔄 " + i18n.T("button.check")
+}
+
+func buttonWeatherToday() string {
+	return "🌤 " + i18n.T("button.today")
+}
+
+func buttonWeatherTomorrow() string {
+	return "🌥 " + i18n.T("button.tomorrow")
+}
+
+func buttonWeatherSetLocation() string {
+	return "📍 " + i18n.T("button.set_location")
+}
+
+func buttonBack() string {
+	return "🔙 " + i18n.T("button.back")
+}
 
 // NormalizeKeyboardText converts keyboard button text into real commands.
 func NormalizeKeyboardText(text string) string {
 	text = strings.TrimSpace(text)
 
 	switch text {
-	// main menu buttons
-	case ButtonYoutube:
+	case buttonYoutube():
 		return "#youtube"
-	case ButtonWeather:
+	case buttonWeather():
 		return "#weather"
-	case ButtonHelp:
+	case buttonHelp():
 		return "#help"
-	// youtube buttons
-	case ButtonYoutubeAdd:
+	case buttonYoutubeAdd():
 		return "#youtube add"
-	case ButtonYoutubeList:
+	case buttonYoutubeList():
 		return "#youtube list"
-	case ButtonYoutubeRemove:
+	case buttonYoutubeRemove():
 		return "#youtube remove"
-	case ButtonYoutubeCheck:
+	case buttonYoutubeCheck():
 		return "#youtube check"
-	// weather buttons
-	case ButtonWeatherToday:
+	case buttonWeatherToday():
 		return "#weather today"
-	case ButtonWeatherTomorrow:
+	case buttonWeatherTomorrow():
 		return "#weather tomorrow"
-	case ButtonWeatherSetLocation:
+	case buttonWeatherSetLocation():
 		return "#weather location"
-	case ButtonBack:
+	case buttonBack():
 		return "#help"
 	default:
 		return text
@@ -94,16 +123,21 @@ func Parse(text string) Command {
 func BuildHelpText(services EnabledServices) string {
 	var b strings.Builder
 
-	b.WriteString("Choose a service\n\n")
+	b.WriteString(i18n.T("help.choose_service"))
+	b.WriteString("\n\n")
 
 	if services.Youtube {
-		b.WriteString("🎥 YouTube\n")
-	}
-	if services.Weather {
-		b.WriteString("🌤 Weather\n")
+		b.WriteString(buttonYoutube())
+		b.WriteString("\n")
 	}
 
-	b.WriteString("📚 Help\n")
+	if services.Weather {
+		b.WriteString(buttonWeather())
+		b.WriteString("\n")
+	}
+
+	b.WriteString(buttonHelp())
+	b.WriteString("\n")
 
 	return b.String()
 }
@@ -118,17 +152,18 @@ func BuildMainKeyboard(services EnabledServices) tgbotapi.ReplyKeyboardMarkup {
 
 	if services.Youtube {
 		rows = append(rows, tgbotapi.NewKeyboardButtonRow(
-			tgbotapi.NewKeyboardButton(ButtonYoutube),
+			tgbotapi.NewKeyboardButton(buttonYoutube()),
 		))
 	}
+
 	if services.Weather {
 		rows = append(rows, tgbotapi.NewKeyboardButtonRow(
-			tgbotapi.NewKeyboardButton(ButtonWeather),
+			tgbotapi.NewKeyboardButton(buttonWeather()),
 		))
 	}
 
 	rows = append(rows, tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton(ButtonHelp),
+		tgbotapi.NewKeyboardButton(buttonHelp()),
 	))
 
 	keyboard := tgbotapi.NewReplyKeyboard(rows...)
@@ -136,11 +171,6 @@ func BuildMainKeyboard(services EnabledServices) tgbotapi.ReplyKeyboardMarkup {
 	keyboard.OneTimeKeyboard = false
 
 	return keyboard
-}
-
-type KeyboardButtonConfig struct {
-	Text    string
-	Command string
 }
 
 func BuildModuleKeyboard(buttons ...string) tgbotapi.ReplyKeyboardMarkup {
@@ -159,7 +189,7 @@ func BuildModuleKeyboard(buttons ...string) tgbotapi.ReplyKeyboardMarkup {
 	}
 
 	rows = append(rows, tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton(ButtonBack),
+		tgbotapi.NewKeyboardButton(buttonBack()),
 	))
 
 	keyboard := tgbotapi.NewReplyKeyboard(rows...)
@@ -172,18 +202,18 @@ func BuildModuleKeyboard(buttons ...string) tgbotapi.ReplyKeyboardMarkup {
 // BuildYoutubeKeyboard returns a keyboard for the youtube module.
 func BuildYoutubeKeyboard() tgbotapi.ReplyKeyboardMarkup {
 	return BuildModuleKeyboard(
-		ButtonYoutubeAdd,
-		ButtonYoutubeList,
-		ButtonYoutubeRemove,
-		ButtonYoutubeCheck,
+		buttonYoutubeAdd(),
+		buttonYoutubeList(),
+		buttonYoutubeRemove(),
+		buttonYoutubeCheck(),
 	)
 }
 
 // BuildWeatherKeyboard returns a keyboard for the weather module.
 func BuildWeatherKeyboard() tgbotapi.ReplyKeyboardMarkup {
 	return BuildModuleKeyboard(
-		ButtonWeatherToday,
-		ButtonWeatherTomorrow,
-		ButtonWeatherSetLocation,
+		buttonWeatherToday(),
+		buttonWeatherTomorrow(),
+		buttonWeatherSetLocation(),
 	)
 }

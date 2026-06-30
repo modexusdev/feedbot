@@ -6,6 +6,7 @@ import (
 	"html"
 	"strings"
 
+	"github.com/modexusdev/feedbot/internal/i18n"
 	"github.com/modexusdev/feedbot/internal/storage"
 )
 
@@ -24,7 +25,7 @@ func YoutubeFormat(text string) string {
 func YoutubeAddFormat(channel storage.YoutubeChannel) string {
 	return YoutubeFormat(
 		fmt.Sprintf(
-			"Do you want to add this YouTube channel?\n\n<b>Name:</b> %s\n<b>Handle:</b> %s",
+			i18n.T("youtube.add_confirm"),
 			html.EscapeString(channel.Name),
 			html.EscapeString(channel.Handle),
 		),
@@ -35,7 +36,7 @@ func YoutubeAddFormat(channel storage.YoutubeChannel) string {
 func YoutubeAlreadyAddedFormat(channel storage.YoutubeChannel) string {
 	return YoutubeFormat(
 		fmt.Sprintf(
-			"⚠️ This YouTube channel has already been added.\n\n<b>Name:</b> %s\n<b>Handle:</b> %s",
+			i18n.T("youtube.already_added"),
 			html.EscapeString(channel.Name),
 			html.EscapeString(channel.Handle),
 		),

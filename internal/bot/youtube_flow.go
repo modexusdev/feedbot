@@ -2,39 +2,39 @@
 package bot
 
 import (
+	"fmt"
+	"html"
 	"log"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/modexusdev/feedbot/internal/commands"
+	"github.com/modexusdev/feedbot/internal/i18n"
 	"github.com/modexusdev/feedbot/internal/reply"
 	"github.com/modexusdev/feedbot/internal/storage"
 	"github.com/modexusdev/feedbot/internal/youtube"
 )
 
-// handleYoutubeLink extracts channel data from a submitted YouTube link
-// and asks the user to confirm before saving it.
 func (b *Bot) handleYoutubeLink(chatID int64, text string) {
 	b.waitingForYoutubeLink[chatID] = false
 
 	channel, err := youtube.ExtractYoutubeChannel(text)
 	if err != nil {
-		b.sendMessage(chatID, reply.Format("❌", "Could not read YouTube channel."))
+		b.sendMessage(chatID, reply.Format("❌", i18n.T("youtube.read_channel_error")))
 		return
 	}
+
 	if storage.YoutubeChannelExists(channel.Handle, channel.RSSURL) {
-		b.sendMessage(
-			chatID,
-			reply.YoutubeAlreadyAddedFormat(channel),
-		)
+		b.sendMessage(chatID, reply.YoutubeAlreadyAddedFormat(channel))
 		return
 	}
+
 	b.pendingYoutubeChannel[chatID] = channel
 
 	markup := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("✅ Yes", "youtube_add_yes"),
-			tgbotapi.NewInlineKeyboardButtonData("❌ No", "youtube_add_no"),
+			tgbotapi.NewInlineKeyboardButtonData(i18n.T("button.yes"), "youtube_add_yes"),
+			tgbotapi.NewInlineKeyboardButtonData(i18n.T("button.no"), "youtube_add_no"),
 		),
 	)
 
@@ -60,52 +60,48 @@ func (b *Bot) handleYoutubeLink(chatID int64, text string) {
 	}
 }
 
-// handleYoutubeAddConfirm saves the pending YouTube channel after user confirmation.
 func (b *Bot) handleYoutubeAddConfirm(chatID int64) {
 	channel, ok := b.pendingYoutubeChannel[chatID]
 	if !ok {
-		b.sendMessage(chatID, reply.Format("❌", "No pending YouTube channel found."))
+		b.sendMessage(chatID, reply.Format("❌", i18n.T("youtube.no_pending_channel")))
 		return
 	}
 
 	if _, err := storage.SaveYoutubeChannel(channel); err != nil {
-		b.sendMessage(chatID, reply.Format("❌", "Could not save YouTube channel."))
+		b.sendMessage(chatID, reply.Format("❌", i18n.T("youtube.save_channel_error")))
 		return
 	}
 
 	delete(b.pendingYoutubeChannel, chatID)
 
-	b.sendMessage(chatID, reply.YoutubeFormat("✅ YouTube channel added."))
+	b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.channel_added")))
 }
 
-// handleYoutubeAddCancel cancels the pending YouTube channel addition.
 func (b *Bot) handleYoutubeAddCancel(chatID int64) {
 	delete(b.pendingYoutubeChannel, chatID)
 
-	b.sendMessage(chatID, reply.YoutubeFormat("❌ YouTube channel was not added."))
+	b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.channel_not_added")))
 }
 
-// handleYoutubeList sends all saved YouTube channels to the user.
 func (b *Bot) handleYoutubeList(chatID int64) {
 	channels, err := storage.GetYoutubeChannels()
 	if err != nil {
-		b.sendMessage(chatID, reply.YoutubeFormat("❌ Could not load channels."))
+		b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.load_channels_error")))
 		return
 	}
 
 	b.sendMessage(chatID, reply.YoutubeListFormat(channels))
 }
 
-// handleYoutubeRemoveStart initiates the process of removing a YouTube channel.
 func (b *Bot) handleYoutubeRemoveStart(chatID int64) {
 	channels, err := storage.GetYoutubeChannels()
 	if err != nil {
-		b.sendMessage(chatID, reply.YoutubeFormat("❌ Could not load channels."))
+		b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.load_channels_error")))
 		return
 	}
 
 	if len(channels) == 0 {
-		b.sendMessage(chatID, reply.YoutubeFormat("No YouTube channels found."))
+		b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.no_channels_found")))
 		return
 	}
 
@@ -113,42 +109,48 @@ func (b *Bot) handleYoutubeRemoveStart(chatID int64) {
 
 	b.sendMessage(
 		chatID,
-		reply.YoutubeListFormat(channels)+"\n\nWrite the number you want to remove.",
+		reply.YoutubeListFormat(channels)+"\n\n"+i18n.T("youtube.remove_write_number"),
 	)
 }
 
-// handleYoutubeRemoveNumber removes the selected YouTube channel based on user input.
 func (b *Bot) handleYoutubeRemoveNumber(chatID int64, text string) {
 	b.waitingForYoutubeRemove[chatID] = false
 
 	index, err := strconv.Atoi(text)
 	if err != nil || index < 1 {
-		b.sendMessage(chatID, reply.YoutubeFormat("❌ Invalid number."))
+		b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.invalid_number")))
 		return
 	}
 
 	channels, err := storage.GetYoutubeChannels()
 	if err != nil {
-		b.sendMessage(chatID, reply.YoutubeFormat("❌ Could not load channels."))
+		b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.load_channels_error")))
 		return
 	}
 
 	if index > len(channels) {
-		b.sendMessage(chatID, reply.YoutubeFormat("❌ Channel number not found."))
+		b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.channel_number_not_found")))
 		return
 	}
 
 	channel := channels[index-1]
 
 	if err := storage.DeleteYoutubeChannel(channel.ID); err != nil {
-		b.sendMessage(chatID, reply.YoutubeFormat("❌ Could not remove channel."))
+		b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.remove_channel_error")))
 		return
 	}
 
-	b.sendMessage(chatID, reply.YoutubeFormat("✅ Removed:\n\n"+channel.Name))
+	b.sendMessage(
+		chatID,
+		reply.YoutubeFormat(
+			fmt.Sprintf(
+				i18n.T("youtube.channel_removed"),
+				html.EscapeString(channel.Name),
+			),
+		),
+	)
 }
 
-// handleYoutubeCommand processes all YouTube-related command actions.
 func (b *Bot) handleYoutubeCommand(chatID int64, cmd commands.Command) bool {
 	if cmd.Action == "" {
 		b.sendYoutubeMenu(chatID)
@@ -158,12 +160,12 @@ func (b *Bot) handleYoutubeCommand(chatID int64, cmd commands.Command) bool {
 	switch cmd.Action {
 	case "check":
 		go youtube.CheckAllChannels()
-		b.sendMessage(chatID, reply.YoutubeFormat("YouTube check started."))
+		b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.check_started")))
 		return true
 
 	case "add":
 		b.waitingForYoutubeLink[chatID] = true
-		b.sendMessage(chatID, reply.YoutubeFormat("Send me a YouTube channel link or handle."))
+		b.sendMessage(chatID, reply.YoutubeFormat(i18n.T("youtube.send_channel_link")))
 		return true
 
 	case "list":
@@ -177,10 +179,11 @@ func (b *Bot) handleYoutubeCommand(chatID int64, cmd commands.Command) bool {
 
 	return false
 }
+
 func (b *Bot) sendYoutubeMenu(chatID int64) {
 	msg := tgbotapi.NewMessage(
 		chatID,
-		reply.YoutubeFormat("Choose a YouTube action."),
+		reply.YoutubeFormat(i18n.T("youtube.choose_action")),
 	)
 
 	msg.ParseMode = tgbotapi.ModeHTML

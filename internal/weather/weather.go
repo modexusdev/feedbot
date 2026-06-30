@@ -4,18 +4,19 @@ package weather
 import (
 	"fmt"
 
+	"github.com/modexusdev/feedbot/internal/i18n"
 	"github.com/modexusdev/feedbot/internal/scheduler"
 	"github.com/modexusdev/feedbot/internal/storage"
 )
 
 // PushTodayReport pushes the weather report for today to the scheduler.
 func PushTodayReport() {
-	pushWeatherReport("🌅 Morgenbericht für heute", 0)
+	pushWeatherReport(i18n.T("weather.today_report"), 0)
 }
 
 // PushTomorrowReport pushes the weather report for tomorrow to the scheduler.
 func PushTomorrowReport() {
-	pushWeatherReport("🌆 Abendbericht für morgen", 1)
+	pushWeatherReport(i18n.T("weather.tomorrow_report"), 1)
 }
 
 // pushWeatherReport pushes the weather report for a given day offset to the scheduler.

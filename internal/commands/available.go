@@ -1,6 +1,8 @@
 // modexusBot internal/commands/available.go
 package commands
 
+import "github.com/modexusdev/feedbot/internal/i18n"
+
 type AvailableCommand struct {
 	Name        string
 	Description string
@@ -12,10 +14,9 @@ type AvailableCommand struct {
 // for the configured services.
 func AvailableCommands(services EnabledServices) []AvailableCommand {
 	commands := []AvailableCommand{
-
 		{
 			Name:        "help",
-			Description: "Show available commands",
+			Description: i18n.T("command.help.description"),
 			Emoji:       "📚",
 		},
 	}
@@ -23,25 +24,28 @@ func AvailableCommands(services EnabledServices) []AvailableCommand {
 	if services.Youtube {
 		commands = append(commands, AvailableCommand{
 			Name:        "youtube check",
-			Description: "Check for new YouTube videos",
+			Description: i18n.T("command.youtube_check.description"),
 			Emoji:       "🎥",
 			Service:     "youtube",
 		})
+
 		commands = append(commands, AvailableCommand{
 			Name:        "youtube add",
-			Description: "Manage YouTube channels",
+			Description: i18n.T("command.youtube_add.description"),
 			Emoji:       "🎥",
 			Service:     "youtube",
 		})
+
 		commands = append(commands, AvailableCommand{
 			Name:        "youtube list",
-			Description: "List all YouTube channels",
+			Description: i18n.T("command.youtube_list.description"),
 			Emoji:       "🎥",
 			Service:     "youtube",
 		})
+
 		commands = append(commands, AvailableCommand{
 			Name:        "youtube remove",
-			Description: "Remove a YouTube channel",
+			Description: i18n.T("command.youtube_remove.description"),
 			Emoji:       "🎥",
 			Service:     "youtube",
 		})
@@ -51,22 +55,22 @@ func AvailableCommands(services EnabledServices) []AvailableCommand {
 	if services.Weather {
 		commands = append(commands, AvailableCommand{
 			Name:        "weather today",
-			Description: "Show today's weather",
+			Description: i18n.T("command.weather_today.description"),
 			Emoji:       "🌤",
 			Service:     "weather",
 		})
 
 		commands = append(commands, AvailableCommand{
 			Name:        "weather tomorrow",
-			Description: "Show tomorrow's weather",
+			Description: i18n.T("command.weather_tomorrow.description"),
 			Emoji:       "🌤",
 			Service:     "weather",
 		})
 
 		commands = append(commands, AvailableCommand{
 			Name:        "set location",
-			Description: "Set your location for weather report",
-			Emoji:       "⚠️",
+			Description: i18n.T("command.set_location.description"),
+			Emoji:       "📍",
 			Service:     "weather",
 		})
 	}
