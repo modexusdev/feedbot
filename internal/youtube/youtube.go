@@ -149,15 +149,16 @@ func pushYoutubeVideo(channel *storage.YoutubeChannel, video LatestVideo) {
 		SourceEmoji: "🎥",
 		SourceName:  "YouTube",
 		Message: fmt.Sprintf(
-			"👤 <b>%s</b>\n\n"+
-				"🎬 <b>%s</b>\n\n"+
+			"🔔 <b>%s</b>\n\n"+
+				"👤 <b>%s</b> %s\n\n"+
 				"━━━━━━━━━━━━\n"+
 				"%s\n"+
 				"━━━━━━━━━━━━\n\n"+
 				"🕒 %s\n\n"+
 				"🔗 %s",
+			i18n.T("youtube.new_upload"),
 			html.EscapeString(channel.Name),
-			i18n.T("youtube.new_video"),
+			i18n.T("youtube.published_new_video"),
 			html.EscapeString(video.Title),
 			html.EscapeString(date),
 			html.EscapeString(video.Link),

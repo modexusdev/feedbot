@@ -20,7 +20,7 @@ func (b *Bot) handleYoutubeLink(chatID int64, text string) {
 
 	channel, err := youtube.ExtractYoutubeChannel(text)
 	if err != nil {
-		b.sendMessage(chatID, reply.Format("❌", i18n.T("youtube.read_channel_error")))
+		b.sendMessage(chatID, reply.Format("❌", "Youtube", i18n.T("youtube.read_channel_error")))
 		return
 	}
 
@@ -63,12 +63,12 @@ func (b *Bot) handleYoutubeLink(chatID int64, text string) {
 func (b *Bot) handleYoutubeAddConfirm(chatID int64) {
 	channel, ok := b.pendingYoutubeChannel[chatID]
 	if !ok {
-		b.sendMessage(chatID, reply.Format("❌", i18n.T("youtube.no_pending_channel")))
+		b.sendMessage(chatID, reply.Format("❌", "Youtube", i18n.T("youtube.no_pending_channel")))
 		return
 	}
 
 	if _, err := storage.SaveYoutubeChannel(channel); err != nil {
-		b.sendMessage(chatID, reply.Format("❌", i18n.T("youtube.save_channel_error")))
+		b.sendMessage(chatID, reply.Format("❌", "Youtube", i18n.T("youtube.save_channel_error")))
 		return
 	}
 

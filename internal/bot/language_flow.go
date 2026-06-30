@@ -26,7 +26,7 @@ func (b *Bot) sendLanguageMenu(chatID int64) {
 
 	msg := tgbotapi.NewMessage(
 		chatID,
-		reply.Format("🌍", i18n.T("language.choose")),
+		reply.Format("🌍", "Language", i18n.T("language.choose")),
 	)
 
 	msg.ParseMode = tgbotapi.ModeHTML
@@ -45,12 +45,12 @@ func (b *Bot) handleLanguageCallback(chatID int64, data string) bool {
 	code := strings.TrimPrefix(data, "language_set_")
 
 	if !i18n.IsSupported(code) {
-		b.sendMessage(chatID, reply.Format("❌", i18n.T("language.unsupported")))
+		b.sendMessage(chatID, reply.Format("❌", "Language", i18n.T("language.unsupported")))
 		return true
 	}
 
 	if err := storage.SaveLanguage(code); err != nil {
-		b.sendMessage(chatID, reply.Format("❌", i18n.T("language.save_error")))
+		b.sendMessage(chatID, reply.Format("❌", "Language", i18n.T("language.save_error")))
 		return true
 	}
 
@@ -60,6 +60,7 @@ func (b *Bot) handleLanguageCallback(chatID int64, data string) bool {
 		chatID,
 		reply.Format(
 			"🌍",
+			"Language",
 			fmt.Sprintf(
 				i18n.T("language.changed"),
 				i18n.GetLanguageName(code),

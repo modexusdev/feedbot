@@ -26,7 +26,7 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 		location := getWeatherLocation()
 		msg, err := weather.GetWeather(location.Latitude, location.Longitude, location.Name, 0)
 		if err != nil {
-			b.sendMessage(chatID, reply.Format("❌", i18n.T("weather.load_data_error")))
+			b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.load_data_error")))
 			return true
 		}
 
@@ -37,7 +37,7 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 		location := getWeatherLocation()
 		msg, err := weather.GetWeather(location.Latitude, location.Longitude, location.Name, 1)
 		if err != nil {
-			b.sendMessage(chatID, reply.Format("❌", i18n.T("weather.load_data_error")))
+			b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.load_data_error")))
 			return true
 		}
 
@@ -47,7 +47,7 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 	case "location":
 		b.waitingForWeatherLocation[chatID] = true
 
-		b.sendMessage(chatID, reply.Format("📍", i18n.T("weather.send_city_name")))
+		b.sendMessage(chatID, reply.Format("📍", "Weather", i18n.T("weather.send_city_name")))
 		return true
 	}
 
@@ -57,7 +57,7 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 func (b *Bot) sendWeatherMenu(chatID int64) {
 	msg := tgbotapi.NewMessage(
 		chatID,
-		reply.Format("🌤", i18n.T("weather.choose_action")),
+		reply.Format("🌤", "Weather", i18n.T("weather.choose_action")),
 	)
 
 	msg.ParseMode = tgbotapi.ModeHTML
@@ -73,19 +73,19 @@ func (b *Bot) handleWeatherLocation(chatID int64, city string) {
 
 	locations, err := weather.GeocodeCity(city)
 	if err != nil {
-		b.sendMessage(chatID, reply.Format("❌", i18n.T("weather.city_not_found")))
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.city_not_found")))
 		return
 	}
 
 	if len(locations) == 0 {
-		b.sendMessage(chatID, reply.Format("❌", i18n.T("weather.no_city_found")))
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.no_city_found")))
 		return
 	}
 
 	b.pendingWeatherLocations[chatID] = locations
 	b.waitingForWeatherLocationNumber[chatID] = true
 
-	b.sendMessage(chatID, reply.Format("📍", weather.FormatLocationList(locations)))
+	b.sendMessage(chatID, reply.Format("📍", "Weather", weather.FormatLocationList(locations)))
 }
 
 func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
@@ -93,7 +93,7 @@ func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
 
 	number, err := strconv.Atoi(strings.TrimSpace(text))
 	if err != nil {
-		b.sendMessage(chatID, reply.Format("❌", i18n.T("weather.send_only_number")))
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.send_only_number")))
 		return
 	}
 
@@ -102,6 +102,7 @@ func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
 			chatID,
 			reply.Format(
 				"❌",
+				"Weather",
 				fmt.Sprintf(i18n.T("weather.choose_number_between"), len(locations)),
 			),
 		)
@@ -118,14 +119,14 @@ func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
 	})
 
 	if err != nil {
-		b.sendMessage(chatID, reply.Format("❌", i18n.T("weather.save_location_error")))
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.save_location_error")))
 		return
 	}
 
 	delete(b.pendingWeatherLocations, chatID)
 	delete(b.waitingForWeatherLocationNumber, chatID)
 
-	b.sendMessage(chatID, reply.Format("✅", weather.FormatSelectedLocation(loc)))
+	b.sendMessage(chatID, reply.Format("✅", "Weather", weather.FormatSelectedLocation(loc)))
 }
 
 func getWeatherLocation() storage.WeatherLocation {

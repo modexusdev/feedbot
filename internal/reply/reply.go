@@ -11,14 +11,16 @@ import (
 )
 
 // Format creates a standard FeedBot message.
-func Format(emoji, text string) string {
-	return "<b>🚀 FeedBot:</b>\n━━━━━━━━━━━━\n\n" + emoji + " " + text
+func Format(moduleEmoji, moduleName, text string) string {
+	return "<b>🚀 FeedBot</b>  •  " +
+		moduleEmoji + "  <b>" + moduleName + "</b>\n" +
+		"━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+		text
 }
 
 // YoutubeFormat creates a formatted YouTube message.
 func YoutubeFormat(text string) string {
-	return Format("🎥", "<b>YouTube:</b>\n\n"+text)
-
+	return Format("🎥", "YouTube", text)
 }
 
 // YoutubeAddFormat creates a confirmation message for adding a channel.
@@ -65,12 +67,14 @@ func YoutubeListFormat(channels []storage.YoutubeChannel) string {
 }
 
 func WeatherFormat(text string) string {
-	return Format("🌦️", "<b>Weather:</b>\n\n"+text)
+	return Format("🌦️", "Weather", text)
 }
 
 // AutomationFormat creates a formatted automation notification message.
 func AutomationFormat(sourceEmoji, sourceName, text string) string {
-	return "<b>🚀 FeedBot • Automation 🤖</b>\n━━━━━━━━━━━━\n\n<b>" +
-		sourceEmoji + " " + sourceName + ":</b>\n\n" +
+	return "<b>🚀 FeedBot</b>\n\n" +
+		"🤖 <b>Automation</b>  •  " +
+		sourceEmoji + "  <b>" + sourceName + "</b>\n" +
+		"━━━━━━━━━━━━━━━━━━━━━━\n\n" +
 		text
 }
