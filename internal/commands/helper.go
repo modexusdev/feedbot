@@ -2,6 +2,7 @@
 package commands
 
 import (
+	"fmt"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -11,6 +12,21 @@ import (
 type KeyboardButtonConfig struct {
 	Text    string
 	Command string
+}
+
+// PaginationConfig holds the configuration for pagination buttons.
+type PaginationConfig struct {
+	Prefix   string
+	Page     int
+	Total    int
+	PageSize int
+
+	PrevText string
+	NextText string
+
+	ShowBack bool
+	BackText string
+	BackData string
 }
 
 func buttonYoutube() string {
@@ -221,4 +237,74 @@ func BuildWeatherKeyboard() tgbotapi.ReplyKeyboardMarkup {
 		buttonWeatherTomorrow(),
 		buttonWeatherSetLocation(),
 	)
+}
+
+func BuildPaginationKeyboard(cfg PaginationConfig) tgbotapi.InlineKeyboardMarkup {
+	totalPages := (cfg.Total + cfg.PageSize - 1) / cfg.PageSize
+
+	if totalPages <= 0 {
+		totalPages = 1
+	}
+
+	var rows [][]tgbotapi.InlineKeyboardButton
+	var navRow []tgbotapi.InlineKeyboardButton
+
+	if cfg.Page > 0 {
+		navRow = append(navRow, tgbotapi.NewInlineKeyboardButtonData(
+			cfg.PrevText,
+			fmt.Sprintf("%s:%d", cfg.Prefix, cfg.Page-1),
+		))
+	}
+
+	navRow = append(navRow, tgbotapi.NewInlineKeyboardButtonData(
+		fmt.Sprintf("%d/%d", cfg.Page+1, totalPages),
+		"noop",
+	))
+
+	if cfg.Page < totalPages-1 {
+		navRow = append(navRow, tgbotapi.NewInlineKeyboardButtonData(
+			cfg.NextText,
+			fmt.Sprintf("%s:%d", cfg.Prefix, cfg.Page+1),
+		))
+	}
+
+	if len(navRow) > 0 {
+		rows = append(rows, navRow)
+	}
+
+	if cfg.ShowBack {
+		rows = append(rows, tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(cfg.BackText, cfg.BackData),
+		))
+	}
+
+	return tgbotapi.NewInlineKeyboardMarkup(rows...)
+}
+
+// BuildWeatherPageKeyboard returns an inline keyboard for navigating between weather pages.
+func BuildWeatherPageKeyboard(dayOffset int, page string) *tgbotapi.InlineKeyboardMarkup {
+	day := "today"
+	if dayOffset == 1 {
+		day = "tomorrow"
+	}
+
+	var button tgbotapi.InlineKeyboardButton
+
+	if page == "overview" {
+		button = tgbotapi.NewInlineKeyboardButtonData(
+			"📊 "+i18n.T("weather.forecast")+" ➡️",
+			"weather:"+day+":forecast",
+		)
+	} else {
+		button = tgbotapi.NewInlineKeyboardButtonData(
+			"⬅️ "+i18n.T("weather.overview"),
+			"weather:"+day+":overview",
+		)
+	}
+
+	keyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(button),
+	)
+
+	return &keyboard
 }

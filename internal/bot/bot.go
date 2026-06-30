@@ -73,7 +73,7 @@ func (b *Bot) sendMessage(chatID int64, text string) {
 }
 
 // Sends an automation message to the allowed user ID, if configured.
-func (b *Bot) sendAutomation(text string) {
+func (b *Bot) sendAutomation(item scheduler.AutomationMessage) {
 	if len(b.config.AllowedUserIDs) == 0 {
 		log.Println("no allowed user id found for automation message")
 		return
@@ -85,14 +85,20 @@ func (b *Bot) sendAutomation(text string) {
 		return
 	}
 
-	b.sendMessage(chatID, text)
+	msg := tgbotapi.NewMessage(chatID, item.Text)
+	msg.ParseMode = tgbotapi.ModeHTML
+	msg.ReplyMarkup = item.ReplyMarkup
+
+	if _, err := b.api.Send(msg); err != nil {
+		log.Printf("failed to send automation message: %v", err)
+	}
 }
 
 // Listens to the scheduler queue and sends automation messages to the allowed user ID, if configured.
 func (b *Bot) ListenScheduler() {
 	for msg := range scheduler.Queue {
-		b.sendAutomation(msg.Text)
-		// Prevent Telegram message bursts when multiple events arrive at once.
+		b.sendAutomation(msg)
+
 		time.Sleep(5 * time.Second)
 	}
 }

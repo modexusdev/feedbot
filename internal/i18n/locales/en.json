@@ -70,6 +70,7 @@
   "weather.sunrise": "Sunrise",
   "weather.sunset": "Sunset",
   "weather.forecast": "Forecast",
+  "weather.overview": "Overview",
   "weather.load_data_error": "Could not load weather data.",
   "weather.send_city_name": "Please send me the name of your city.\n\nExample: Halle",
   "weather.choose_action": "Choose a weather action.",

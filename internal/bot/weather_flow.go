@@ -24,24 +24,26 @@ func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 	switch cmd.Action {
 	case "today":
 		location := getWeatherLocation()
-		msg, err := weather.GetWeather(location.Latitude, location.Longitude, location.Name, 0)
+
+		msg, err := weather.GetWeatherPage(location.Latitude, location.Longitude, location.Name, 0, "overview")
 		if err != nil {
 			b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.load_data_error")))
 			return true
 		}
 
-		b.sendMessage(chatID, msg)
+		b.sendWeatherPage(chatID, msg, 0, "overview")
 		return true
 
 	case "tomorrow":
 		location := getWeatherLocation()
-		msg, err := weather.GetWeather(location.Latitude, location.Longitude, location.Name, 1)
+
+		msg, err := weather.GetWeatherPage(location.Latitude, location.Longitude, location.Name, 1, "overview")
 		if err != nil {
 			b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.load_data_error")))
 			return true
 		}
 
-		b.sendMessage(chatID, msg)
+		b.sendWeatherPage(chatID, msg, 1, "overview")
 		return true
 
 	case "location":
@@ -142,4 +144,50 @@ func getWeatherLocation() storage.WeatherLocation {
 		Latitude:  52.5173885,
 		Longitude: 13.3951309,
 	}
+}
+func (b *Bot) sendWeatherPage(chatID int64, text string, dayOffset int, page string) {
+	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = tgbotapi.ModeHTML
+	msg.ReplyMarkup = commands.BuildWeatherPageKeyboard(dayOffset, page)
+
+	if _, err := b.api.Send(msg); err != nil {
+		log.Printf("failed to send weather page: %v", err)
+	}
+}
+
+func (b *Bot) handleWeatherCallback(chatID int64, messageID int, data string) bool {
+	if !strings.HasPrefix(data, "weather:") {
+		return false
+	}
+
+	parts := strings.Split(data, ":")
+	if len(parts) != 3 {
+		return true
+	}
+
+	day := parts[1]
+	page := parts[2]
+
+	dayOffset := 0
+	if day == "tomorrow" {
+		dayOffset = 1
+	}
+
+	location := getWeatherLocation()
+
+	msg, err := weather.GetWeatherPage(location.Latitude, location.Longitude, location.Name, dayOffset, page)
+	if err != nil {
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.load_data_error")))
+		return true
+	}
+
+	edit := tgbotapi.NewEditMessageText(chatID, messageID, msg)
+	edit.ParseMode = tgbotapi.ModeHTML
+	edit.ReplyMarkup = commands.BuildWeatherPageKeyboard(dayOffset, page)
+
+	if _, err := b.api.Request(edit); err != nil {
+		log.Printf("failed to edit weather page: %v", err)
+	}
+
+	return true
 }
