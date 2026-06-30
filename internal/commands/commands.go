@@ -18,7 +18,7 @@ func Handle(cmd Command, services EnabledServices) string {
 		return "Hello 👋"
 
 	case "help":
-		return reply.Format("📚", BuildHelpText(services))
+		return reply.Format("📚", "Help", BuildHelpText(services))
 	}
 
 	return ""

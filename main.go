@@ -7,12 +7,24 @@ import (
 	"github.com/modexusdev/feedbot/internal/bot"
 	"github.com/modexusdev/feedbot/internal/commands"
 	"github.com/modexusdev/feedbot/internal/config"
+	"github.com/modexusdev/feedbot/internal/i18n"
+	"github.com/modexusdev/feedbot/internal/storage"
 	"github.com/modexusdev/feedbot/internal/tracker"
 )
 
 func main() {
 	// Load application configuration from environment variables.
 	cfg := config.Load()
+
+	// Initialize internationalization.
+	if err := i18n.Init(); err != nil {
+		log.Fatal(err)
+	}
+
+	language, err := storage.GetLanguage()
+	if err == nil {
+		i18n.SetLanguage(language)
+	}
 
 	// Define which services are enabled for this bot instance.
 	services := commands.EnabledServices{

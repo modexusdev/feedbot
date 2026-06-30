@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/modexusdev/feedbot/internal/i18n"
 )
 
 type GeoLocation struct {
@@ -69,7 +71,7 @@ func GeocodeCity(city string) ([]GeoLocation, error) {
 	}
 
 	if len(raw) == 0 {
-		return nil, fmt.Errorf("city not found")
+		return nil, fmt.Errorf("%s", i18n.T("weather.city_not_found"))
 	}
 
 	locations := make([]GeoLocation, 0, len(raw))
@@ -101,7 +103,7 @@ func GeocodeCity(city string) ([]GeoLocation, error) {
 	}
 
 	if len(locations) == 0 {
-		return nil, fmt.Errorf("city not found")
+		return nil, fmt.Errorf("%s", i18n.T("weather.city_not_found"))
 	}
 
 	return locations, nil
@@ -177,5 +179,5 @@ func (loc GeoLocation) Title() string {
 		return loc.Name
 	}
 
-	return "Unbekannter Standort"
+	return i18n.T("weather.unknown_location")
 }

@@ -12,7 +12,9 @@ func (b *Bot) handleCommandAction(chatID int64, cmd commands.Command) bool {
 
 	case "weather":
 		return b.handleWeatherCommand(chatID, cmd)
-
+	case "language":
+		b.sendLanguageMenu(chatID)
+		return true
 	default:
 		return false
 	}

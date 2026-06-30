@@ -6,25 +6,28 @@ import (
 	"html"
 	"strings"
 
+	"github.com/modexusdev/feedbot/internal/i18n"
 	"github.com/modexusdev/feedbot/internal/storage"
 )
 
 // Format creates a standard FeedBot message.
-func Format(emoji, text string) string {
-	return "<b>🚀 FeedBot:</b>\n━━━━━━━━━━━━\n\n" + emoji + " " + text
+func Format(moduleEmoji, moduleName, text string) string {
+	return "<b>🚀 FeedBot</b>  •  " +
+		moduleEmoji + "  <b>" + moduleName + "</b>\n" +
+		"━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+		text
 }
 
 // YoutubeFormat creates a formatted YouTube message.
 func YoutubeFormat(text string) string {
-	return Format("🎥", "<b>YouTube:</b>\n\n"+text)
-
+	return Format("🎥", "YouTube", text)
 }
 
 // YoutubeAddFormat creates a confirmation message for adding a channel.
 func YoutubeAddFormat(channel storage.YoutubeChannel) string {
 	return YoutubeFormat(
 		fmt.Sprintf(
-			"Do you want to add this YouTube channel?\n\n<b>Name:</b> %s\n<b>Handle:</b> %s",
+			i18n.T("youtube.add_confirm"),
 			html.EscapeString(channel.Name),
 			html.EscapeString(channel.Handle),
 		),
@@ -35,7 +38,7 @@ func YoutubeAddFormat(channel storage.YoutubeChannel) string {
 func YoutubeAlreadyAddedFormat(channel storage.YoutubeChannel) string {
 	return YoutubeFormat(
 		fmt.Sprintf(
-			"⚠️ This YouTube channel has already been added.\n\n<b>Name:</b> %s\n<b>Handle:</b> %s",
+			i18n.T("youtube.already_added"),
 			html.EscapeString(channel.Name),
 			html.EscapeString(channel.Handle),
 		),
@@ -64,12 +67,14 @@ func YoutubeListFormat(channels []storage.YoutubeChannel) string {
 }
 
 func WeatherFormat(text string) string {
-	return Format("🌦️", "<b>Weather:</b>\n\n"+text)
+	return Format("🌦️", "Weather", text)
 }
 
 // AutomationFormat creates a formatted automation notification message.
 func AutomationFormat(sourceEmoji, sourceName, text string) string {
-	return "<b>🚀 FeedBot • Automation 🤖</b>\n━━━━━━━━━━━━\n\n<b>" +
-		sourceEmoji + " " + sourceName + ":</b>\n\n" +
+	return "<b>🚀 FeedBot</b>\n\n" +
+		"🤖 <b>Automation</b>  •  " +
+		sourceEmoji + "  <b>" + sourceName + "</b>\n" +
+		"━━━━━━━━━━━━━━━━━━━━━━\n\n" +
 		text
 }

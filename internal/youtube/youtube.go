@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/modexusdev/feedbot/internal/i18n"
 	"github.com/modexusdev/feedbot/internal/scheduler"
 	"github.com/modexusdev/feedbot/internal/storage"
 )
@@ -153,14 +154,16 @@ func pushYoutubeVideo(channel *storage.YoutubeChannel, video LatestVideo) {
 		SourceEmoji: "🎥",
 		SourceName:  "YouTube",
 		Message: fmt.Sprintf(
-			"👤 <b>%s</b>\n\n"+
-				"🎬 <b>Neues Video</b>\n\n"+
+			"🔔 <b>%s</b>\n\n"+
+				"👤 <b>%s</b> %s\n\n"+
 				"━━━━━━━━━━━━\n"+
 				"%s\n"+
 				"━━━━━━━━━━━━\n\n"+
 				"🕒 %s\n\n"+
 				"🔗 %s",
+			i18n.T("youtube.new_upload"),
 			html.EscapeString(channel.Name),
+			i18n.T("youtube.published_new_video"),
 			html.EscapeString(video.Title),
 			html.EscapeString(date),
 			html.EscapeString(video.Link),
@@ -174,6 +177,6 @@ func saveLatestVideoID(channel *storage.YoutubeChannel, videoID string) {
 
 	_, err := storage.SaveYoutubeChannel(*channel)
 	if err != nil {
-		fmt.Println("save youtube channel error:", err)
+		fmt.Println(i18n.T("youtube.save_channel_error"), err)
 	}
 }

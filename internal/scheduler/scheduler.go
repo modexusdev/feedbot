@@ -4,6 +4,7 @@ package scheduler
 import (
 	"time"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/modexusdev/feedbot/internal/reply"
 )
 
@@ -12,11 +13,13 @@ type ScheduledMessage struct {
 	SourceEmoji string
 	SourceName  string
 	Message     string
+	ReplyMarkup *tgbotapi.InlineKeyboardMarkup
 }
 
 // AutomationMessage contains the final formatted message text.
 type AutomationMessage struct {
-	Text string
+	Text        string
+	ReplyMarkup *tgbotapi.InlineKeyboardMarkup
 }
 
 // Schedule contains the schedule for an automation notification.
@@ -37,7 +40,8 @@ func Push(msg ScheduledMessage) {
 	)
 
 	Queue <- AutomationMessage{
-		Text: text,
+		Text:        text,
+		ReplyMarkup: msg.ReplyMarkup,
 	}
 }
 

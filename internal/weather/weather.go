@@ -4,21 +4,20 @@ package weather
 import (
 	"fmt"
 
+	"github.com/modexusdev/feedbot/internal/commands"
+	"github.com/modexusdev/feedbot/internal/i18n"
 	"github.com/modexusdev/feedbot/internal/scheduler"
 	"github.com/modexusdev/feedbot/internal/storage"
 )
 
-// PushTodayReport pushes the weather report for today to the scheduler.
 func PushTodayReport() {
-	pushWeatherReport("🌅 Morgenbericht für heute", 0)
+	pushWeatherReport(i18n.T("weather.today_report"), 0)
 }
 
-// PushTomorrowReport pushes the weather report for tomorrow to the scheduler.
 func PushTomorrowReport() {
-	pushWeatherReport("🌆 Abendbericht für morgen", 1)
+	pushWeatherReport(i18n.T("weather.tomorrow_report"), 1)
 }
 
-// pushWeatherReport pushes the weather report for a given day offset to the scheduler.
 func pushWeatherReport(title string, dayOffset int) {
 	location, err := storage.GetWeatherLocation()
 	if err != nil {
@@ -31,21 +30,19 @@ func pushWeatherReport(title string, dayOffset int) {
 		}
 	}
 
-	msg, err := GetWeatherRaw(
-		location.Latitude,
-		location.Longitude,
-		location.Name,
-		dayOffset,
-	)
-
+	data, err := FetchWeather(location.Latitude, location.Longitude, dayOffset)
 	if err != nil {
 		fmt.Println("weather automation error:", err)
 		return
 	}
 
+	overview := FormatWeatherOverview(location.Name, data, dayOffset)
+	keyboard := commands.BuildWeatherPageKeyboard(dayOffset, "overview")
+
 	scheduler.Push(scheduler.ScheduledMessage{
 		SourceEmoji: "🌦️",
 		SourceName:  "Weather",
-		Message:     "<b>" + title + "</b>\n\n" + msg,
+		Message:     "<b>" + title + " • " + i18n.T("button.overview") + "</b>\n\n" + overview,
+		ReplyMarkup: keyboard,
 	})
 }

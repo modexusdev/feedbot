@@ -9,76 +9,57 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/modexusdev/feedbot/internal/commands"
+	"github.com/modexusdev/feedbot/internal/i18n"
 	"github.com/modexusdev/feedbot/internal/reply"
 	"github.com/modexusdev/feedbot/internal/storage"
 	"github.com/modexusdev/feedbot/internal/weather"
 )
 
-// Handles the weather command and sends the appropriate weather report to the user.
 func (b *Bot) handleWeatherCommand(chatID int64, cmd commands.Command) bool {
 	if cmd.Action == "" {
 		b.sendWeatherMenu(chatID)
 		return true
 	}
-	// Switch on the action to determine which weather report to send.
+
 	switch cmd.Action {
-	// Sends the weather report for today.
 	case "today":
-		// Get location from storage and send weather report.
 		location := getWeatherLocation()
-		msg, err := weather.GetWeather(
-			location.Latitude,
-			location.Longitude,
-			location.Name,
-			0,
-		)
 
+		msg, err := weather.GetWeatherPage(location.Latitude, location.Longitude, location.Name, 0, "overview")
 		if err != nil {
-			b.sendMessage(chatID, reply.Format("❌", "Could not load weather data."))
+			b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.load_data_error")))
 			return true
 		}
 
-		b.sendMessage(chatID, msg)
+		b.sendWeatherPage(chatID, msg, 0, "overview")
 		return true
 
-	// Sends the weather report for tomorrow.
 	case "tomorrow":
-		// Get location from storage and send weather report.
 		location := getWeatherLocation()
-		msg, err := weather.GetWeather(
-			location.Latitude,
-			location.Longitude,
-			location.Name,
-			1,
-		)
 
+		msg, err := weather.GetWeatherPage(location.Latitude, location.Longitude, location.Name, 1, "overview")
 		if err != nil {
-			b.sendMessage(chatID, reply.Format("❌", "Could not load weather data."))
+			b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.load_data_error")))
 			return true
 		}
 
-		b.sendMessage(chatID, msg)
+		b.sendWeatherPage(chatID, msg, 1, "overview")
 		return true
-		// Handles the location action, waiting for the user to send the location name.
+
 	case "location":
 		b.waitingForWeatherLocation[chatID] = true
 
-		b.sendMessage(
-			chatID,
-			reply.Format("📍", "Bitte schick mir den Namen deiner Stadt.\n\nBeispiel: Halle"),
-		)
-
+		b.sendMessage(chatID, reply.Format("📍", "Weather", i18n.T("weather.send_city_name")))
 		return true
 	}
 
 	return false
 }
 
-// Sends the weather menu to the user, allowing them to choose an action.
 func (b *Bot) sendWeatherMenu(chatID int64) {
 	msg := tgbotapi.NewMessage(
 		chatID,
-		reply.Format("🌤", "Choose a weather action."),
+		reply.Format("🌤", "Weather", i18n.T("weather.choose_action")),
 	)
 
 	msg.ParseMode = tgbotapi.ModeHTML
@@ -89,44 +70,43 @@ func (b *Bot) sendWeatherMenu(chatID int64) {
 	}
 }
 
-// Handles the location action, waiting for the user to send the location name.
 func (b *Bot) handleWeatherLocation(chatID int64, city string) {
 	delete(b.waitingForWeatherLocation, chatID)
 
 	locations, err := weather.GeocodeCity(city)
 	if err != nil {
-		b.sendMessage(chatID, reply.Format("❌", "Stadt konnte nicht gefunden werden."))
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.city_not_found")))
 		return
 	}
 
 	if len(locations) == 0 {
-		b.sendMessage(chatID, reply.Format("❌", "Keine Stadt gefunden."))
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.no_city_found")))
 		return
 	}
 
 	b.pendingWeatherLocations[chatID] = locations
 	b.waitingForWeatherLocationNumber[chatID] = true
 
-	b.sendMessage(
-		chatID,
-		reply.Format("📍", weather.FormatLocationList(locations)),
-	)
+	b.sendMessage(chatID, reply.Format("📍", "Weather", weather.FormatLocationList(locations)))
 }
 
-// Handles the location number action, waiting for the user to send the location number.
 func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
 	locations := b.pendingWeatherLocations[chatID]
 
 	number, err := strconv.Atoi(strings.TrimSpace(text))
 	if err != nil {
-		b.sendMessage(chatID, reply.Format("❌", "Bitte sende nur eine Nummer aus der Liste."))
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.send_only_number")))
 		return
 	}
 
 	if number < 1 || number > len(locations) {
 		b.sendMessage(
 			chatID,
-			reply.Format("❌", fmt.Sprintf("Bitte wähle eine Nummer zwischen 1 und %d.", len(locations))),
+			reply.Format(
+				"❌",
+				"Weather",
+				fmt.Sprintf(i18n.T("weather.choose_number_between"), len(locations)),
+			),
 		)
 		return
 	}
@@ -141,20 +121,16 @@ func (b *Bot) handleWeatherLocationNumber(chatID int64, text string) {
 	})
 
 	if err != nil {
-		b.sendMessage(chatID, reply.Format("❌", "Standort konnte nicht gespeichert werden."))
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.save_location_error")))
 		return
 	}
 
 	delete(b.pendingWeatherLocations, chatID)
 	delete(b.waitingForWeatherLocationNumber, chatID)
 
-	b.sendMessage(
-		chatID,
-		reply.Format("✅", weather.FormatSelectedLocation(loc)),
-	)
+	b.sendMessage(chatID, reply.Format("✅", "Weather", weather.FormatSelectedLocation(loc)))
 }
 
-// Retrieves the weather location from the storage, or returns a default location if none is found.
 func getWeatherLocation() storage.WeatherLocation {
 	location, err := storage.GetWeatherLocation()
 	if err == nil {
@@ -168,4 +144,50 @@ func getWeatherLocation() storage.WeatherLocation {
 		Latitude:  52.5173885,
 		Longitude: 13.3951309,
 	}
+}
+func (b *Bot) sendWeatherPage(chatID int64, text string, dayOffset int, page string) {
+	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = tgbotapi.ModeHTML
+	msg.ReplyMarkup = commands.BuildWeatherPageKeyboard(dayOffset, page)
+
+	if _, err := b.api.Send(msg); err != nil {
+		log.Printf("failed to send weather page: %v", err)
+	}
+}
+
+func (b *Bot) handleWeatherCallback(chatID int64, messageID int, data string) bool {
+	if !strings.HasPrefix(data, "weather:") {
+		return false
+	}
+
+	parts := strings.Split(data, ":")
+	if len(parts) != 3 {
+		return true
+	}
+
+	day := parts[1]
+	page := parts[2]
+
+	dayOffset := 0
+	if day == "tomorrow" {
+		dayOffset = 1
+	}
+
+	location := getWeatherLocation()
+
+	msg, err := weather.GetWeatherPage(location.Latitude, location.Longitude, location.Name, dayOffset, page)
+	if err != nil {
+		b.sendMessage(chatID, reply.Format("❌", "Weather", i18n.T("weather.load_data_error")))
+		return true
+	}
+
+	edit := tgbotapi.NewEditMessageText(chatID, messageID, msg)
+	edit.ParseMode = tgbotapi.ModeHTML
+	edit.ReplyMarkup = commands.BuildWeatherPageKeyboard(dayOffset, page)
+
+	if _, err := b.api.Request(edit); err != nil {
+		log.Printf("failed to edit weather page: %v", err)
+	}
+
+	return true
 }

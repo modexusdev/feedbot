@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -125,7 +126,7 @@ func filterWeather(raw openMeteoResponse, dayOffset int) WeatherResponse {
 		Longitude: raw.Longitude,
 		Timezone:  raw.Timezone,
 		Current:   filterCurrent(raw.Current),
-		Hourly:    filterHourly(raw.Hourly, raw.Daily.Time[dayOffset]),
+		Hourly:    filterHourlyEvery2Hours(raw.Hourly, raw.Daily.Time[dayOffset]),
 		Daily:     filterDaily(raw.Daily, dayOffset),
 	}
 }
@@ -145,17 +146,7 @@ func filterCurrent(current openMeteoCurrent) WeatherCurrent {
 }
 
 // filterHourly filters the raw hourly weather data into a structured []WeatherHourlyItem
-func filterHourly(hourly openMeteoHourly, targetDate string) []WeatherHourlyItem {
-	wantedHours := map[string]bool{
-		"06:00": true,
-		"09:00": true,
-		"12:00": true,
-		"15:00": true,
-		"18:00": true,
-		"21:00": true,
-		"23:00": true,
-	}
-
+func filterHourlyEvery2Hours(hourly openMeteoHourly, targetDate string) []WeatherHourlyItem {
 	var result []WeatherHourlyItem
 
 	for i, t := range hourly.Time {
@@ -166,7 +157,17 @@ func filterHourly(hourly openMeteoHourly, targetDate string) []WeatherHourlyItem
 			continue
 		}
 
-		if !wantedHours[hour] {
+		// 01:00, 07:00, 09:00, ... 23:00
+		if hour < "00:00" || hour > "23:00" {
+			continue
+		}
+
+		hourNumber, err := strconv.Atoi(hour[:2])
+		if err != nil {
+			continue
+		}
+
+		if hourNumber%2 != 0 {
 			continue
 		}
 
@@ -183,6 +184,7 @@ func filterHourly(hourly openMeteoHourly, targetDate string) []WeatherHourlyItem
 
 	return result
 }
+
 func filterDaily(daily openMeteoDaily, dayOffset int) WeatherDaily {
 	if len(daily.Time) <= dayOffset {
 		return WeatherDaily{}
