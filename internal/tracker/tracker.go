@@ -19,7 +19,7 @@ func Watch() {
 		youtube.CheckAllChannels,
 	)
 	// Push today's weather report at 6 AM and tomorrow's at 6 PM
-	go scheduler.DailyAt(1, 04, weather.PushTodayReport)
+	go scheduler.DailyAt(6, 0, weather.PushTodayReport)
 	// Push tomorrow's weather report at 6 PM
-	go scheduler.DailyAt(1, 05, weather.PushTomorrowReport)
+	go scheduler.DailyAt(18, 0, weather.PushTomorrowReport)
 }
